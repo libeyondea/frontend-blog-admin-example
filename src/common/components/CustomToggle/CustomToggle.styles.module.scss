@@ -1,0 +1,8 @@
+.toggle__wrapper {
+	& > span > svg {
+		transition: transform ease-in-out 0.3s;
+		&.show {
+			transform: rotate(-90deg);
+		}
+	}
+}
