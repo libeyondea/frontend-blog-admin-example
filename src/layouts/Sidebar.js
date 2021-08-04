@@ -26,7 +26,7 @@ const Sidebar = ({ wrapperRef }) => {
 					<span className="ms-2 fs-5 fw-bolder">{process.env.SITE_NAME}</span>
 				</CustomLink>
 			</div>
-			<div className="p-2 sidebar-body">
+			<div className="px-2 py-3 sidebar-body">
 				<Accordion
 					as="ul"
 					className="list-group"
