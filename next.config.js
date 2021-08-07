@@ -1,4 +1,5 @@
 const { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } = require('next/constants');
+const removeImports = require('next-remove-imports')();
 
 module.exports = (phase) => {
 	// when started in development mode `next dev` or `npm run dev` regardless of the value of STAGING environmental variable
@@ -36,7 +37,7 @@ module.exports = (phase) => {
 		},
 		LOGO_URL: 'https://elasticbeanstalk-ap-southeast-1-153036539674.s3.ap-southeast-1.amazonaws.com/images/6666666666.png'
 	};
-	return {
+	return removeImports({
 		env,
 		reactStrictMode: true,
 		images: {
@@ -51,5 +52,5 @@ module.exports = (phase) => {
 			defaultLocale: 'en',
 			localeDetection: false
 		}
-	};
+	});
 };

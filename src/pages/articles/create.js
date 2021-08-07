@@ -3,6 +3,7 @@ import React from 'react';
 import Breadcrumb from '@/common/components/Breadcrumb';
 import Card from '@/common/components/Card';
 import MainLayout from '@/layouts/MainLayout';
+import CreateArticleForm from '@/modules/articles/CreateArticleForm';
 
 const CreateArticle = () => {
 	return (
@@ -11,7 +12,9 @@ const CreateArticle = () => {
 				<Breadcrumb>Create article</Breadcrumb>
 			</div>
 			<div className="content-body">
-				<Card header="Create article">Create article</Card>
+				<Card header="Create article">
+					<CreateArticleForm />
+				</Card>
 			</div>
 		</MainLayout>
 	);

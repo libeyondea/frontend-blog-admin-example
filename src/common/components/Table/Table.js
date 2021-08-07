@@ -5,7 +5,7 @@ import { usePagination, useTable } from 'react-table';
 
 import getPageNumbers from '@/common/utils/getPageNumbers';
 
-import { tableStyles } from './Table.styles';
+import { paginationStyles } from './Table.styles';
 
 const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) => {
 	const totalPage = Math.ceil(total / limit);
@@ -59,12 +59,28 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 						{headerGroups.map((headerGroup, index) => (
 							<tr {...headerGroup.getHeaderGroupProps()} key={index}>
 								{headerGroup.headers.slice(0, 1).map((column, index) => (
-									<th {...column.getHeaderProps()} style={{ width: column.render('width') }} key={index}>
+									<th
+										{...column.getHeaderProps([
+											{
+												className: column.className,
+												style: column.style
+											}
+										])}
+										key={index}
+									>
 										{column.render('Header')}
 									</th>
 								))}
 								{headerGroup.headers.slice(1).map((column, index) => (
-									<th {...column.getHeaderProps()} style={{ width: column.render('width') }} key={index}>
+									<th
+										{...column.getHeaderProps([
+											{
+												className: column.className,
+												style: column.style
+											}
+										])}
+										key={index}
+									>
 										{column.render('Header')}
 									</th>
 								))}
@@ -78,7 +94,15 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 								<tr {...row.getRowProps()} key={index}>
 									{row.cells.map((cell, index) => {
 										return (
-											<td {...cell.getCellProps()} key={index}>
+											<td
+												{...cell.getCellProps([
+													{
+														className: cell.column.className,
+														style: cell.column.style
+													}
+												])}
+												key={index}
+											>
 												{cell.render('Cell')}
 											</td>
 										);
@@ -93,7 +117,7 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 				<div className="d-flex align-items-center">
 					<span className="me-1">Page</span>
 					<input
-						className="form-control w-auto me-1"
+						className="form-control form-control-sm w-auto me-1"
 						type="number"
 						value={pageIndex}
 						min="1"
@@ -106,7 +130,7 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 					<span className="me-1">of</span>
 					<strong className="me-1">{pageOptions.length}</strong>
 					<select
-						className="form-select w-auto"
+						className="form-select form-select-sm w-auto"
 						value={limit}
 						onChange={(e) => {
 							//setPageSize(Number(e.target.value));
@@ -122,7 +146,7 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 					</select>
 				</div>
 				<nav className="ms-md-auto mt-3 mt-md-0" aria-label="pagination">
-					<ul className="pagination mb-0">
+					<ul className="pagination pagination-sm mb-0">
 						{currentPage !== 1 ? (
 							<>
 								<li className="page-item">
@@ -234,9 +258,9 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 							</>
 						)}
 					</ul>
+					<style jsx>{paginationStyles}</style>
 				</nav>
 			</div>
-			<style jsx>{tableStyles}</style>
 		</div>
 	);
 };

@@ -209,3 +209,32 @@
 		background-position: 468px 0;
 	}
 }
+
+.w-md-editor {
+	height: auto !important;
+	.w-md-editor-toolbar {
+		flex-wrap: wrap;
+		height: auto !important;
+	}
+	.w-md-editor-content {
+		.w-md-editor-input {
+			.w-md-editor-text {
+				/* font-size: 1rem !important; */
+				.w-md-editor-text-pre {
+					.blockquote {
+						font-size: inherit;
+					}
+				}
+			}
+		}
+		.w-md-editor-preview {
+			/* font-size: 1.2rem !important; */
+		}
+		.wmde-markdown-color code[class*='language-'] .token.operator,
+		.wmde-markdown-color code[class*='language-'] .token.entity,
+		.wmde-markdown-color code[class*='language-'] .token.url,
+		.wmde-markdown-color code[class*='language-'] .token.variable {
+			background: #f6f8fa !important;
+		}
+	}
+}
