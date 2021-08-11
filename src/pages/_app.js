@@ -1,9 +1,10 @@
 import '@/styles/globals.scss';
-import '@/styles/github-markdown.css';
 import 'nprogress/nprogress.css';
 
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import { RecoilRoot, useRecoilSnapshot } from 'recoil';
 import { SWRConfig } from 'swr';
 
 import fetcher from '@/common/utils/fetcher';
@@ -15,6 +16,18 @@ const ProgressBar = dynamic(
 	},
 	{ ssr: false }
 );
+
+function DebugObserver() {
+	const snapshot = useRecoilSnapshot();
+	useEffect(() => {
+		console.debug('The following atoms were modified:');
+		for (const node of snapshot.getNodes_UNSTABLE({ isModified: true })) {
+			console.debug(node.key, snapshot.getLoadable(node));
+		}
+	}, [snapshot]);
+
+	return null;
+}
 
 function App({ Component, pageProps }) {
 	const router = useRouter();
@@ -35,7 +48,10 @@ function App({ Component, pageProps }) {
 					shouldRetryOnError: false
 				}}
 			>
-				<Component {...pageProps} key={router.asPath} />
+				<RecoilRoot>
+					<DebugObserver />
+					<Component {...pageProps} key={router.asPath} />
+				</RecoilRoot>
 			</SWRConfig>
 		</>
 	);

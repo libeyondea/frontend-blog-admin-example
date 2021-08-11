@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import React from 'react';
 import useSWR from 'swr';
 
+import ImageInput from '@/common/components/ImageInput';
 import MarkDownEditor from '@/common/components/MarkDownEditor';
 import httpRequest from '@/common/utils/httpRequest';
 
@@ -18,7 +19,17 @@ const AsyncCreatableSelect = dynamic(() => import('react-select/async-creatable'
 	ssr: false
 });
 
-const CustomForm = ({ values, touched, errors, handleChange, handleBlur, handleSubmit, setFieldValue, setFieldTouched }) => {
+const CustomForm = ({
+	values,
+	touched,
+	errors,
+	handleChange,
+	handleBlur,
+	handleSubmit,
+	setFieldValue,
+	setFieldTouched,
+	isSubmitting
+}) => {
 	const { data: categories } = useSWR(`/categories`, {
 		revalidateOnFocus: false
 	});
@@ -32,6 +43,7 @@ const CustomForm = ({ values, touched, errors, handleChange, handleBlur, handleS
 					q: inputValue
 				}
 			});
+
 			if (response.data.success) {
 				return response.data.data;
 			}
@@ -44,8 +56,15 @@ const CustomForm = ({ values, touched, errors, handleChange, handleBlur, handleS
 	return (
 		<form onSubmit={handleSubmit}>
 			<div className="mb-3">
+				<label htmlFor="image" className="form-label">
+					Image <span className="text-danger">*</span>
+				</label>
+				<ImageInput name="image" id="image" onChange={setFieldValue} onBlur={setFieldTouched} previewUrl={values.image_url} />
+				{errors.image && touched.image && <div className="invalid-feedback d-block">{errors.image}</div>}
+			</div>
+			<div className="mb-3">
 				<label htmlFor="title" className="form-label">
-					Title
+					Title <span className="text-danger">*</span>
 				</label>
 				<input
 					type="text"
@@ -63,7 +82,7 @@ const CustomForm = ({ values, touched, errors, handleChange, handleBlur, handleS
 			</div>
 			<div className="mb-3">
 				<label htmlFor="category" className="form-label">
-					Category
+					Category <span className="text-danger">*</span>
 				</label>
 				<select
 					className={classNames('form-select', {
@@ -95,7 +114,7 @@ const CustomForm = ({ values, touched, errors, handleChange, handleBlur, handleS
 			</div>
 			<div className="mb-3">
 				<label htmlFor="tags" className="form-label">
-					Tags
+					Tags <span className="text-danger">*</span>
 				</label>
 				<AsyncCreatableSelect
 					id="tags"
@@ -105,7 +124,7 @@ const CustomForm = ({ values, touched, errors, handleChange, handleBlur, handleS
 					isMulti
 					placeholder="Choose tags"
 					onChange={(value) => setFieldValue('tags', value)}
-					onBlur={(value) => setFieldTouched('tags', value)}
+					onBlur={() => setFieldTouched('tags', true)}
 					value={values.tags}
 					getNewOptionData={(inputValue, optionLabel) => ({
 						id: inputValue,
@@ -116,23 +135,59 @@ const CustomForm = ({ values, touched, errors, handleChange, handleBlur, handleS
 					getOptionValue={(option) => option.id}
 					getOptionLabel={(option) => option.title}
 				/>
-				{errors.tags && touched.tags && <div className="invalid-feedback d-block">{errors.tags}</div>}
+				{errors.tags && touched.tags && (
+					<div className="invalid-feedback d-block">{errors?.tags[0]?.title ? errors.tags[0].title : errors.tags}</div>
+				)}
 			</div>
 			<div className="mb-3">
 				<label htmlFor="content" className="form-label">
-					Content
+					Content <span className="text-danger">*</span>
 				</label>
 				<MarkDownEditor
 					id="content"
 					placeholder="Enter content"
 					value={values.content}
 					onChange={(value) => setFieldValue('content', value)}
-					onBlur={(value) => setFieldTouched('content', value)}
+					onBlur={() => setFieldTouched('content', true)}
 				/>
 				{errors.content && touched.content && <div className="invalid-feedback d-block">{errors.content}</div>}
 			</div>
+			<div className="form-check form-switch mb-3">
+				<input
+					className={classNames('form-check-input', {
+						'is-invalid': errors.pinned && touched.pinned
+					})}
+					type="checkbox"
+					onChange={() => setFieldValue('pinned', !values.pinned)}
+					onBlur={() => setFieldTouched('pinned', !values.pinned)}
+					checked={values.pinned}
+					id="pinned"
+					name="pinned"
+				/>
+				<label className="form-check-label" htmlFor="pinned">
+					Pinned
+				</label>
+				{errors.pinned && touched.pinned && <div className="invalid-feedback">{errors.pinned}</div>}
+			</div>
+			<div className="form-check form-switch mb-3">
+				<input
+					className={classNames('form-check-input', {
+						'is-invalid': errors.published && touched.published
+					})}
+					type="checkbox"
+					onChange={() => setFieldValue('published', !values.published)}
+					onBlur={() => setFieldTouched('published', !values.published)}
+					checked={values.published}
+					id="published"
+					name="published"
+				/>
+				<label className="form-check-label" htmlFor="published">
+					Published
+				</label>
+				{errors.published && touched.published && <div className="invalid-feedback">{errors.published}</div>}
+			</div>
 			<div>
-				<button className="btn btn-primary" type="submit">
+				<button className="btn btn-primary" type="submit" disabled={isSubmitting}>
 					Submit
 				</button>
 			</div>

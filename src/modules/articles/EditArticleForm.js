@@ -1,6 +1,7 @@
 import { withFormik } from 'formik';
 import { useRouter } from 'next/router';
 import React from 'react';
+import useSWR from 'swr';
 import * as Yup from 'yup';
 
 import httpRequest from '@/common/utils/httpRequest';
@@ -8,22 +9,26 @@ import { getCookie } from '@/common/utils/session';
 
 import CustomForm from './CustomForm';
 
-const CreateArticleForm = () => {
+const EditArticleForm = () => {
 	const router = useRouter();
+
+	const { data: article } = useSWR(router.isReady ? `/articles/${router?.query?.pid}` : null, {
+		revalidateOnFocus: false
+	});
 
 	const EnhancedForm = withFormik({
 		mapPropsToValues: () => ({
-			title: '',
-			content: '',
-			category: '',
-			tags: [],
+			title: article.data.title,
+			content: article.data.content,
+			category: article.data.category.id,
+			tags: article.data.tags,
 			image: null,
-			pinned: false,
-			published: true
+			pinned: Boolean(Number(article.data.pinned)),
+			published: Boolean(Number(article.data.published)),
+			image_url: article.data.image
 		}),
 		validationSchema: Yup.object({
 			image: Yup.mixed()
-				.required('Image is required')
 				.test(
 					'fileSize',
 					'Image size too large, max image size is 2 MB',
@@ -50,8 +55,8 @@ const CreateArticleForm = () => {
 		}),
 		handleSubmit: async (values, { setSubmitting, setErrors }) => {
 			try {
-				const response = await httpRequest.formDataPost({
-					url: `/articles`,
+				const response = await httpRequest.formDataPut({
+					url: `/articles/${router?.query?.pid}`,
 					token: getCookie('token'),
 					data: {
 						title: values.title,
@@ -69,7 +74,7 @@ const CreateArticleForm = () => {
 					router.push(`/articles/lists`);
 				}
 			} catch (error) {
-				console.log(error.response.data.error.message);
+				console.log(error.response);
 				//setErrors({ title: error.response.data.error.message });
 				/* if (!error?.response?.data?.success && error?.response?.data?.error?.status === 422) {
 					setErrors(error.response.data);
@@ -78,14 +83,10 @@ const CreateArticleForm = () => {
 				setSubmitting(false);
 			}
 		},
-		displayName: 'CreateArticleForm'
+		displayName: 'EditArticleForm'
 	})(CustomForm);
 
-	return (
-		<>
-			<EnhancedForm />
-		</>
-	);
+	return <>{!article ? <div>Loading...</div> : <EnhancedForm />}</>;
 };
 
-export default CreateArticleForm;
+export default EditArticleForm;

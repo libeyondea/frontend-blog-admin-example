@@ -22,9 +22,9 @@ module.exports = (phase) => {
 			return 'RESTURL_SPEAKERS:not (isDev,isProd && !isStaging,isProd && isStaging)';
 		})(),
 		API_URL: (() => {
-			if (isDev) return 'http://localhost:666/api';
-			if (isProd) return 'https://backend-blog-example.herokuapp.com/api';
-			if (isStaging) return 'https://backend-blog-example.herokuapp.com/api';
+			if (isDev) return 'http://localhost:666/admin';
+			if (isProd) return 'https://backend-blog-example.herokuapp.com/admin';
+			if (isStaging) return 'https://backend-blog-example.herokuapp.com/admin';
 			return 'RESTURL_SESSIONS:not (isDev,isProd && !isStaging,isProd && isStaging)';
 		})(),
 		LIMIT_PAGE: {

@@ -98,9 +98,10 @@ const httpRequest = {
 				}
 			}
 		}
+		formData.append('_method', 'PUT');
 		return axios({
 			timeout: process.env.REQUEST.TIMEOUT,
-			method: 'put',
+			method: 'post',
 			baseURL: baseUrl,
 			url: url,
 			headers: {

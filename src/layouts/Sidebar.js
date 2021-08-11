@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import React from 'react';
 import Accordion from 'react-bootstrap/Accordion';
-import { FaBook, FaRegCircle, FaTachometerAlt } from 'react-icons/fa';
+import { FaBook, FaListAlt, FaPlus, FaRegCircle, FaTachometerAlt, FaTags, FaThLarge } from 'react-icons/fa';
 
 import CustomImage from '@/common/components/CustomImage';
 import CustomLink from '@/common/components/CustomLink';
@@ -27,18 +27,12 @@ const Sidebar = ({ wrapperRef }) => {
 				</CustomLink>
 			</div>
 			<div className="px-2 py-3 sidebar-body">
-				<Accordion
-					as="ul"
-					className="list-group"
-					defaultActiveKey={
-						router.pathname === '/'
-							? 'dashboard'
-							: router.pathname === '/articles/lists' || router.pathname === '/articles/create'
-							? 'articles'
-							: ''
-					}
-				>
-					<li className="list-group-item border-0 p-0">
+				<ul className="list-group">
+					<Accordion
+						as="li"
+						className="list-group-item border-0 p-0"
+						defaultActiveKey={router.pathname === '/' ? 'dashboard' : ''}
+					>
 						<CustomToggle
 							eventKey="dashboard"
 							className={classNames({
@@ -61,8 +55,12 @@ const Sidebar = ({ wrapperRef }) => {
 								</CustomLink>
 							</>
 						</Accordion.Collapse>
-					</li>
-					<li className="list-group-item border-0 p-0">
+					</Accordion>
+					<Accordion
+						as="li"
+						className="list-group-item border-0 p-0"
+						defaultActiveKey={router.pathname === '/articles/lists' || router.pathname === '/articles/create' ? 'articles' : ''}
+					>
 						<CustomToggle
 							eventKey="articles"
 							className={classNames({
@@ -81,7 +79,7 @@ const Sidebar = ({ wrapperRef }) => {
 										'active-page': router.pathname === '/articles/lists'
 									})}
 								>
-									<FaRegCircle className="me-2 fs-5" /> Lists
+									<FaListAlt className="me-2 fs-5" /> Lists
 								</CustomLink>
 								<CustomLink
 									href={`/articles/create`}
@@ -89,12 +87,86 @@ const Sidebar = ({ wrapperRef }) => {
 										'active-page': router.pathname === '/articles/create'
 									})}
 								>
-									<FaRegCircle className="me-2 fs-5" /> Create
+									<FaPlus className="me-2 fs-5" /> Create
 								</CustomLink>
 							</>
 						</Accordion.Collapse>
-					</li>
-				</Accordion>
+					</Accordion>
+					<Accordion
+						as="li"
+						className="list-group-item border-0 p-0"
+						defaultActiveKey={
+							router.pathname === '/categories/lists' || router.pathname === '/categories/create' ? 'categories' : ''
+						}
+					>
+						<CustomToggle
+							eventKey="categories"
+							className={classNames({
+								'active-page': router.pathname === '/categories/lists' || router.pathname === '/categories/create'
+							})}
+						>
+							<>
+								<FaThLarge className="me-2 fs-5" /> Categories
+							</>
+						</CustomToggle>
+						<Accordion.Collapse eventKey="categories">
+							<>
+								<CustomLink
+									href={`/categories/lists`}
+									className={classNames('d-flex align-items-center dropdown-item p-2 ps-4 mb-1', {
+										'active-page': router.pathname === '/categories/lists'
+									})}
+								>
+									<FaListAlt className="me-2 fs-5" /> Lists
+								</CustomLink>
+								<CustomLink
+									href={`/categories/create`}
+									className={classNames('d-flex align-items-center dropdown-item p-2 ps-4 mb-1', {
+										'active-page': router.pathname === '/categories/create'
+									})}
+								>
+									<FaPlus className="me-2 fs-5" /> Create
+								</CustomLink>
+							</>
+						</Accordion.Collapse>
+					</Accordion>
+					<Accordion
+						as="li"
+						className="list-group-item border-0 p-0"
+						defaultActiveKey={router.pathname === '/tags/lists' || router.pathname === '/tags/create' ? 'tags' : ''}
+					>
+						<CustomToggle
+							eventKey="tags"
+							className={classNames({
+								'active-page': router.pathname === '/tags/lists' || router.pathname === '/tags/create'
+							})}
+						>
+							<>
+								<FaTags className="me-2 fs-5" /> Tags
+							</>
+						</CustomToggle>
+						<Accordion.Collapse eventKey="tags">
+							<>
+								<CustomLink
+									href={`/tags/lists`}
+									className={classNames('d-flex align-items-center dropdown-item p-2 ps-4 mb-1', {
+										'active-page': router.pathname === '/tags/lists'
+									})}
+								>
+									<FaListAlt className="me-2 fs-5" /> Lists
+								</CustomLink>
+								<CustomLink
+									href={`/tags/create`}
+									className={classNames('d-flex align-items-center dropdown-item p-2 ps-4 mb-1', {
+										'active-page': router.pathname === '/tags/create'
+									})}
+								>
+									<FaPlus className="me-2 fs-5" /> Create
+								</CustomLink>
+							</>
+						</Accordion.Collapse>
+					</Accordion>
+				</ul>
 			</div>
 		</div>
 	);

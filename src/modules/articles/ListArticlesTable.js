@@ -1,52 +1,80 @@
-import React, { useMemo, useState } from 'react';
-import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
-import useSWR from 'swr';
+import React, { useMemo } from 'react';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 
+import CustomImage from '@/common/components/CustomImage';
 import Table from '@/common/components/Table';
 import TableLoading from '@/common/components/TableLoading';
-import pageNumber from '@/common/utils/pageNumber';
+import { articlesState } from '@/common/utils/recoilAtoms';
+import { useArticles } from '@/common/utils/useAPIs';
+
+import CellActions from './CellActions';
+import CellPublished from './CellPublished';
+
+const useArticlesRecoil = () => ({
+	articlesState: useRecoilValue(articlesState),
+	setArticlesState: useSetRecoilState(articlesState)
+});
 
 const ListArticlesTable = () => {
-	const [page, setPage] = useState(1);
-	const [limit, setLimit] = useState(5);
+	const { articlesState, setArticlesState } = useArticlesRecoil();
 
-	const { data: articles } = useSWR(`/articles?offset=${(pageNumber(page) - 1) * limit}&limit=${limit}`, {
-		revalidateOnFocus: false
-	});
+	const { data: articles } = useArticles(
+		articlesState.page,
+		articlesState.limit,
+		articlesState.sortby,
+		articlesState.sortDirection
+	);
 
 	const list = articles?.data.map((i) => {
 		return {
 			id: i.id,
+			image: i.image,
 			slug: i.slug,
 			title: i.title,
-			excerpt: i.excerpt,
-			category_title: i.category.title
+			category: i.category.title,
+			tags: i.tags,
+			published: i.published,
+			pinned: i.pinned
 		};
 	});
 
 	const data = useMemo(() => list, [list]);
 
-	const CellActions = (data) => {
+	const CellTags = (data) => {
 		return (
-			<div className="d-flex align-items-center justify-content-center">
-				<button
-					type="button"
-					className="btn btn-secondary d-flex align-items-center me-2"
-					onClick={() => {
-						console.log(data.row.original);
-					}}
-				>
-					<FaRegEdit />
-				</button>
-				<button
-					type="button"
-					className="btn btn-danger d-flex align-items-center"
-					onClick={() => {
-						console.log(data.row.original);
-					}}
-				>
-					<FaRegTrashAlt />
-				</button>
+			<div>
+				{data?.value?.map((value) => (
+					<button
+						type="button"
+						className="badge bg-transparent rounded-pill text-decoration-none text-secondary border me-1"
+						key={value.id}
+					>
+						<span className="text-muted">#</span>
+						{value.title}
+					</button>
+				))}
+			</div>
+		);
+	};
+
+	const CellImage = (data) => {
+		return data.value && <CustomImage src={data.value} width={150} height={90} alt={data.row.original.title} />;
+	};
+
+	const CellPinned = (data) => {
+		return (
+			<div className="form-check form-switch d-flex align-items-center justify-content-center p-0">
+				<input
+					className="form-check-input m-0"
+					type="checkbox"
+					name="pinned"
+					id="pinned"
+					checked={data.value ? true : false}
+					onChange={() => {}}
+				/>
+				<label className="form-check-label d-none" htmlFor="pinned">
+					Pinned
+				</label>
 			</div>
 		);
 	};
@@ -54,31 +82,64 @@ const ListArticlesTable = () => {
 	const columns = useMemo(
 		() => [
 			{
+				Header: 'Id',
+				accessor: 'id',
+				sortBy: true
+			},
+			{
+				Header: 'Image',
+				accessor: 'image',
+				sortBy: true,
+				Cell: (data) => CellImage(data)
+			},
+			{
 				Header: 'Title',
 				accessor: 'title',
-				style: {
-					width: '25%'
-				}
+				sortBy: true
+			},
+			{
+				Header: 'Slug',
+				accessor: 'slug',
+				sortBy: true
 			},
 			{
 				Header: 'Category',
-				accessor: 'category_title',
-				style: {
-					width: '12%'
-				}
+				accessor: 'category',
+				sortBy: true
 			},
 			{
-				Header: 'Excerpt',
-				accessor: 'excerpt',
+				Header: 'Tags',
+				accessor: 'tags',
+				sortBy: true,
 				style: {
-					width: 'auto'
-				}
+					minWidth: 222
+				},
+				Cell: (data) => CellTags(data)
+			},
+			{
+				Header: 'Published',
+				accessor: 'published',
+				sortBy: true,
+				style: {
+					minWidth: 90
+				},
+				Cell: (data) => CellPublished(data)
+			},
+			{
+				Header: 'Pinned',
+				accessor: 'pinned',
+				sortBy: true,
+				style: {
+					minWidth: 90
+				},
+				Cell: (data) => CellPinned(data)
 			},
 			{
 				Header: 'Actions',
-				className: 'text-center align-middle',
+				id: 'ations',
+				accessor: 'id',
 				style: {
-					width: '16%'
+					minWidth: 90
 				},
 				Cell: (data) => CellActions(data)
 			}
@@ -91,15 +152,7 @@ const ListArticlesTable = () => {
 			{!articles ? (
 				<TableLoading />
 			) : (
-				<Table
-					data={data}
-					columns={columns}
-					setPage={setPage}
-					setLimit={setLimit}
-					currentPage={page}
-					limit={limit}
-					total={articles?.meta?.total}
-				/>
+				<Table data={data} columns={columns} total={articles?.meta?.total} setState={setArticlesState} state={articlesState} />
 			)}
 		</>
 	);

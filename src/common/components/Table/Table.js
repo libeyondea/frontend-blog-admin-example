@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React from 'react';
 import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import { MdMoreHoriz } from 'react-icons/md';
@@ -7,7 +8,10 @@ import getPageNumbers from '@/common/utils/getPageNumbers';
 
 import { paginationStyles } from './Table.styles';
 
-const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) => {
+const Table = ({ columns, data, total, setState, state }) => {
+	const limit = state.limit;
+	const currentPage = state.page;
+
 	const totalPage = Math.ceil(total / limit);
 	const pageNumbers = getPageNumbers({ currentPage, limit, total });
 
@@ -58,27 +62,25 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 					<thead>
 						{headerGroups.map((headerGroup, index) => (
 							<tr {...headerGroup.getHeaderGroupProps()} key={index}>
-								{headerGroup.headers.slice(0, 1).map((column, index) => (
+								{headerGroup.headers.map((column, index) => (
 									<th
-										{...column.getHeaderProps([
-											{
-												className: column.className,
-												style: column.style
-											}
-										])}
-										key={index}
-									>
-										{column.render('Header')}
-									</th>
-								))}
-								{headerGroup.headers.slice(1).map((column, index) => (
-									<th
-										{...column.getHeaderProps([
-											{
-												className: column.className,
-												style: column.style
-											}
-										])}
+										{...column.getHeaderProps({
+											className: classNames('align-middle cursor-pointer text-center', {
+												[column.className]: column.className
+											}),
+											style: column.style
+										})}
+										onClick={
+											column.sortBy
+												? () => {
+														setState({
+															...state,
+															sortby: column.id,
+															sortDirection: state.sortDirection === 'desc' ? 'asc' : 'desc'
+														});
+												  }
+												: () => {}
+										}
 										key={index}
 									>
 										{column.render('Header')}
@@ -94,15 +96,7 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 								<tr {...row.getRowProps()} key={index}>
 									{row.cells.map((cell, index) => {
 										return (
-											<td
-												{...cell.getCellProps([
-													{
-														className: cell.column.className,
-														style: cell.column.style
-													}
-												])}
-												key={index}
-											>
+											<td {...cell.getCellProps()} className="align-middle" key={index}>
 												{cell.render('Cell')}
 											</td>
 										);
@@ -124,7 +118,11 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 						max={totalPage}
 						onChange={(e) => {
 							const page = e.target.value ? Number(e.target.value) : 1;
-							setPage(page);
+							//setState(page);
+							setState({
+								...state,
+								page: page
+							});
 						}}
 					/>
 					<span className="me-1">of</span>
@@ -134,8 +132,12 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 						value={limit}
 						onChange={(e) => {
 							//setPageSize(Number(e.target.value));
-							setLimit(Number(e.target.value));
-							setPage(1);
+							//setLimit(Number(e.target.value));
+							setState({
+								...state,
+								limit: Number(e.target.value),
+								page: 1
+							});
 						}}
 					>
 						{[5, 10, 20, 40].map((pageSize) => (
@@ -155,7 +157,10 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 										className="btn page-link "
 										aria-label="First page"
 										onClick={() => {
-											setPage(1);
+											setState({
+												...state,
+												page: 1
+											});
 										}}
 									>
 										<FaAngleDoubleLeft />
@@ -167,7 +172,11 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 										className="btn page-link"
 										aria-label="Previous page"
 										onClick={() => {
-											setPage((s) => (s === 0 ? 0 : s - 1));
+											//setPage((s) => (s === 0 ? 0 : s - 1));
+											setState({
+												...state,
+												page: state.page === 1 ? 1 : state.page - 1
+											});
 										}}
 									>
 										<FaAngleLeft />
@@ -208,7 +217,11 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 										className="btn page-link"
 										aria-label={`Page ${pageNumber}`}
 										onClick={() => {
-											setPage(pageNumber);
+											//setPage(pageNumber);
+											setState({
+												...state,
+												page: pageNumber
+											});
 										}}
 									>
 										{pageNumber}
@@ -224,7 +237,11 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 										className="btn page-link"
 										aria-label="Previous page"
 										onClick={() => {
-											setPage((s) => s + 1);
+											//setPage((s) => s + 1);
+											setState({
+												...state,
+												page: state.page + 1
+											});
 										}}
 									>
 										<FaAngleRight />
@@ -236,7 +253,11 @@ const Table = ({ setPage, columns, data, currentPage, limit, setLimit, total }) 
 										className="btn page-link"
 										aria-label="First page"
 										onClick={() => {
-											setPage(totalPage);
+											//setPage(totalPage);
+											setState({
+												...state,
+												page: totalPage
+											});
 										}}
 									>
 										<FaAngleDoubleRight />
