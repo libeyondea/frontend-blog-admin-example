@@ -13,7 +13,6 @@ import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import ImageInput from 'common/components/ImageInput/components';
 import classNames from 'classnames';
-import { isEmpty } from 'lodash';
 
 const EditArticleComponent = () => {
 	const auth = useSelector((state) => state.appAuth.current);
