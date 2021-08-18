@@ -1,9 +1,8 @@
 import { useFormik } from 'formik';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
 import httpRequest from 'common/utils/httpRequest';
-import { getCookie } from 'common/utils/cookies';
 import MarkDownEditor from 'common/components/MarkDownEditor/components';
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import Card from 'common/components/Card/components';
