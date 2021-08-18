@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import httpRequest from 'common/utils/httpRequest';
@@ -23,20 +23,24 @@ const CreateArticleComponent = () => {
 		}
 	});
 
-	const listCategories = useCallback(async () => {
-		try {
-			setState((prevState) => ({
-				...prevState,
-				loadings: {
-					...prevState.loadings,
-					categories: true
-				}
-			}));
-			const response = await httpRequest.get({
+	useEffect(() => {
+		setState((prevState) => ({
+			...prevState,
+			loadings: {
+				...prevState.loadings,
+				categories: true
+			}
+		}));
+		httpRequest
+			.get({
 				url: `/categories`,
 				token: auth.token.access_token
-			});
-			if (response.data.success) {
+			})
+			.then((response) => {
+				if (!response.data.success) {
+					console.log('Error');
+					return;
+				}
 				setState((prevState) => ({
 					...prevState,
 					data: {
@@ -44,41 +48,44 @@ const CreateArticleComponent = () => {
 						categories: response.data.data
 					}
 				}));
-			}
-		} catch (error) {
-			console.log(error);
-		} finally {
-			setState((prevState) => ({
-				...prevState,
-				loadings: {
-					...prevState.loadings,
-					categories: false
-				}
-			}));
-		}
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+			.finally(() => {
+				setState((prevState) => ({
+					...prevState,
+					loadings: {
+						...prevState.loadings,
+						categories: false
+					}
+				}));
+			});
 	}, [auth.token.access_token]);
 
-	useEffect(() => {
-		listCategories();
-	}, [listCategories]);
-
-	const promiseTags = async (inputValue) => {
-		try {
-			const response = await httpRequest.get({
+	const promiseTags = (q) => {
+		return httpRequest
+			.get({
 				url: `/search`,
 				token: auth.token.access_token,
 				params: {
 					type: 'tag',
-					q: inputValue
+					q: q
 				}
-			});
-			if (response.data.success) {
+			})
+			.then((response) => {
+				if (!response.data.success) {
+					console.log('Error');
+					return [];
+				}
+				console.log(response.data.data);
 				return response.data.data;
-			}
-		} catch (error) {
-			console.log(error);
-			return [];
-		}
+			})
+			.catch((error) => {
+				console.log(error);
+				return [];
+			})
+			.finally(() => {});
 	};
 
 	const formik = useFormik({
@@ -136,9 +143,10 @@ const CreateArticleComponent = () => {
 					}
 				})
 				.then((response) => {
-					if (response.data.success) {
-						history.push(`/main/articles`);
+					if (!response.data.success) {
+						console.log('Error');
 					}
+					history.push(`/main/articles`);
 				})
 				.catch((error) => {
 					console.log(error);
@@ -300,7 +308,7 @@ const CreateArticleComponent = () => {
 						</div>
 						<div>
 							<button className="btn btn-primary" type="submit" disabled={formik.isSubmitting}>
-								Submit
+								{formik.isSubmitting ? 'Submitting' : 'Submit'}
 							</button>
 						</div>
 					</form>

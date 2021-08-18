@@ -29,20 +29,24 @@ const EditArticleComponent = () => {
 		}
 	});
 
-	const listCategories = useCallback(async () => {
-		try {
-			setState((prevState) => ({
-				...prevState,
-				loadings: {
-					...prevState.loadings,
-					categories: true
-				}
-			}));
-			const response = await httpRequest.get({
+	useEffect(() => {
+		setState((prevState) => ({
+			...prevState,
+			loadings: {
+				...prevState.loadings,
+				categories: true
+			}
+		}));
+		httpRequest
+			.get({
 				url: `/categories`,
 				token: auth.token.access_token
-			});
-			if (response.data.success) {
+			})
+			.then((response) => {
+				if (!response.data.success) {
+					console.log('Error');
+					return;
+				}
 				setState((prevState) => ({
 					...prevState,
 					data: {
@@ -50,69 +54,76 @@ const EditArticleComponent = () => {
 						categories: response.data.data
 					}
 				}));
-			}
-		} catch (error) {
-			console.log(error);
-		} finally {
-			setState((prevState) => ({
-				...prevState,
-				loadings: {
-					...prevState.loadings,
-					categories: false
-				}
-			}));
-		}
-	}, [auth.token.access_token]);
-
-	useEffect(() => {
-		listCategories();
-	}, [listCategories]);
-
-	const promiseTags = async (inputValue) => {
-		try {
-			const response = await httpRequest.get({
-				url: `/search`,
-				token: getCookie('token'),
-				params: {
-					type: 'tag',
-					q: inputValue
-				}
-			});
-			if (response.data.success) {
-				return response.data.data;
-			}
-		} catch (error) {
-			console.log(error);
-			return [];
-		}
-	};
-
-	useEffect(() => {
-		const singleArticle = async () => {
-			try {
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+			.finally(() => {
 				setState((prevState) => ({
 					...prevState,
 					loadings: {
 						...prevState.loadings,
-						article: true
+						categories: false
 					}
 				}));
-				const response = await httpRequest.get({
-					url: `/articles/${params.articleId}`,
-					token: auth.token.access_token
-				});
-				if (response.data.success) {
-					setState((prevState) => ({
-						...prevState,
-						data: {
-							...prevState.data,
-							article: response.data.data
-						}
-					}));
+			});
+	}, [auth.token.access_token]);
+
+	const promiseTags = (q) => {
+		return httpRequest
+			.get({
+				url: `/search`,
+				token: auth.token.access_token,
+				params: {
+					type: 'tag',
+					q: q
 				}
-			} catch (error) {
+			})
+			.then((response) => {
+				if (!response.data.success) {
+					console.log('Error');
+					return [];
+				}
+				console.log(response.data.data);
+				return response.data.data;
+			})
+			.catch((error) => {
 				console.log(error);
-			} finally {
+				return [];
+			})
+			.finally(() => {});
+	};
+
+	useEffect(() => {
+		setState((prevState) => ({
+			...prevState,
+			loadings: {
+				...prevState.loadings,
+				article: true
+			}
+		}));
+		httpRequest
+			.get({
+				url: `/articles/${params.articleId}`,
+				token: auth.token.access_token
+			})
+			.then((response) => {
+				if (!response.data.success) {
+					console.log('Error');
+					return;
+				}
+				setState((prevState) => ({
+					...prevState,
+					data: {
+						...prevState.data,
+						article: response.data.data
+					}
+				}));
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+			.finally(() => {
 				setState((prevState) => ({
 					...prevState,
 					loadings: {
@@ -120,9 +131,7 @@ const EditArticleComponent = () => {
 						article: false
 					}
 				}));
-			}
-		};
-		singleArticle();
+			});
 	}, [auth.token.access_token, params.articleId]);
 
 	const formik = useFormik({
@@ -181,9 +190,10 @@ const EditArticleComponent = () => {
 					}
 				})
 				.then((response) => {
-					if (response.data.success) {
-						history.push(`/main/articles`);
+					if (!response.data.success) {
+						console.log('Error');
 					}
+					history.push(`/main/articles`);
 				})
 				.catch((error) => {
 					console.log(error);
@@ -354,7 +364,7 @@ const EditArticleComponent = () => {
 							</div>
 							<div>
 								<button className="btn btn-primary" type="submit" disabled={formik.isSubmitting}>
-									Submit
+									{formik.isSubmitting ? 'Submitting' : 'Submit'}
 								</button>
 							</div>
 						</form>

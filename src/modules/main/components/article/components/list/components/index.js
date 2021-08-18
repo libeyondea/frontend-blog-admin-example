@@ -7,7 +7,7 @@ import TableLoading from 'common/components/TableLoading/components';
 import history from 'common/utils/history';
 import httpRequest from 'common/utils/httpRequest';
 import pageNumber from 'common/utils/pageNumber';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 
@@ -19,17 +19,25 @@ const ListArticleComponent = () => {
 			articles: []
 		},
 		pagination: {
-			page: 1,
-			limit: 5,
-			limits: [5, 10, 20, 100],
-			total: 0
+			articles: {
+				page: 1,
+				limit: 5,
+				limits: [5, 10, 20, 100],
+				total: 0
+			}
 		},
-		filter: {
-			sortBy: 'id',
-			sortDirection: 'desc'
+		filters: {
+			articles: {
+				sortBy: 'id',
+				sortDirection: 'desc'
+			}
 		},
-		loading: false,
-		deleting: false
+		loadings: {
+			articles: false
+		},
+		deletings: {
+			articles: false
+		}
 	});
 
 	const onChangePage = (page) => {
@@ -37,7 +45,10 @@ const ListArticleComponent = () => {
 			...prevState,
 			pagination: {
 				...prevState.pagination,
-				page: page
+				articles: {
+					...prevState.pagination.articles,
+					page: page
+				}
 			}
 		}));
 	};
@@ -47,18 +58,24 @@ const ListArticleComponent = () => {
 			...prevState,
 			pagination: {
 				...prevState.pagination,
-				limit: limit,
-				page: 1
+				articles: {
+					...prevState.pagination.articles,
+					limit: limit,
+					page: 1
+				}
 			}
 		}));
 	};
 
-	const onDeleteClicked = async (event, article) => {
+	const onDeleteClicked = (event, article) => {
 		event.preventDefault();
 		if (window.confirm('Do you want to delete?')) {
 			setState((prevState) => ({
 				...prevState,
-				deleting: true
+				deletings: {
+					...prevState.deletings,
+					articles: true
+				}
 			}));
 			new Promise((resolve, reject) => {
 				httpRequest
@@ -88,10 +105,10 @@ const ListArticleComponent = () => {
 							url: `/articles`,
 							token: auth.token.access_token,
 							params: {
-								offset: (pageNumber(state.pagination.page) - 1) * state.pagination.limit,
-								limit: state.pagination.limit,
-								sort_by: state.filter.sortBy,
-								sort_direction: state.filter.sortDirection
+								offset: (pageNumber(state.pagination.articles.page) - 1) * state.pagination.articles.limit,
+								limit: state.pagination.articles.limit,
+								sort_by: state.filters.articles.sortBy,
+								sort_direction: state.filters.articles.sortDirection
 							}
 						})
 						.then((response) => {
@@ -107,7 +124,10 @@ const ListArticleComponent = () => {
 								},
 								pagination: {
 									...prevState.pagination,
-									total: response.data.meta.total
+									articles: {
+										...prevState.pagination.articles,
+										total: response.data.meta.total
+									}
 								}
 							}));
 						})
@@ -117,7 +137,10 @@ const ListArticleComponent = () => {
 						.finally(() => {
 							setState((prevState) => ({
 								...prevState,
-								deleting: false
+								deletings: {
+									...prevState.deletings,
+									articles: false
+								}
 							}));
 						});
 				})
@@ -128,23 +151,30 @@ const ListArticleComponent = () => {
 		}
 	};
 
-	const listArticles = useCallback(async () => {
-		try {
-			setState((prevState) => ({
-				...prevState,
-				loading: true
-			}));
-			const response = await httpRequest.get({
+	useEffect(() => {
+		setState((prevState) => ({
+			...prevState,
+			loadings: {
+				...prevState.loadings,
+				articles: true
+			}
+		}));
+		httpRequest
+			.get({
 				url: `/articles`,
 				token: auth.token.access_token,
 				params: {
-					offset: (pageNumber(state.pagination.page) - 1) * state.pagination.limit,
-					limit: state.pagination.limit,
-					sort_by: state.filter.sortBy,
-					sort_direction: state.filter.sortDirection
+					offset: (pageNumber(state.pagination.articles.page) - 1) * state.pagination.articles.limit,
+					limit: state.pagination.articles.limit,
+					sort_by: state.filters.articles.sortBy,
+					sort_direction: state.filters.articles.sortDirection
 				}
-			});
-			if (response.data.success) {
+			})
+			.then((response) => {
+				if (!response.data.success) {
+					console.log('Error');
+					return;
+				}
 				setState((prevState) => ({
 					...prevState,
 					data: {
@@ -153,23 +183,33 @@ const ListArticleComponent = () => {
 					},
 					pagination: {
 						...prevState.pagination,
-						total: response.data.meta.total
+						articles: {
+							...prevState.pagination.articles,
+							total: response.data.meta.total
+						}
 					}
 				}));
-			}
-		} catch (error) {
-			console.log(error);
-		} finally {
-			setState((prevState) => ({
-				...prevState,
-				loading: false
-			}));
-		}
-	}, [auth.token.access_token, state.filter.sortBy, state.filter.sortDirection, state.pagination.limit, state.pagination.page]);
-
-	useEffect(() => {
-		listArticles();
-	}, [listArticles]);
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+			.finally(() => {
+				setState((prevState) => ({
+					...prevState,
+					loadings: {
+						...prevState.loadings,
+						articles: false
+					}
+				}));
+			});
+		return () => {};
+	}, [
+		auth.token.access_token,
+		state.filters.articles.sortBy,
+		state.filters.articles.sortDirection,
+		state.pagination.articles.limit,
+		state.pagination.articles.page
+	]);
 
 	return (
 		<>
@@ -178,7 +218,7 @@ const ListArticleComponent = () => {
 			</div>
 			<div className="content-body">
 				<Card header="List articles">
-					{state.loading ? (
+					{state.loadings.articles ? (
 						<TableLoading />
 					) : (
 						!!state.data.articles.length && (
@@ -237,7 +277,7 @@ const ListArticleComponent = () => {
 																type="button"
 																className="btn btn-danger d-flex align-items-center"
 																onClick={(event) => onDeleteClicked(event, article)}
-																disabled={state.deleting}
+																disabled={state.deletings.articles}
 															>
 																<FaRegTrashAlt />
 															</button>
@@ -249,14 +289,14 @@ const ListArticleComponent = () => {
 									</table>
 								</div>
 								<Pagination
-									limits={state.pagination.limits}
-									total={state.pagination.total}
-									limit={state.pagination.limit}
-									currentPage={state.pagination.page}
+									limits={state.pagination.articles.limits}
+									total={state.pagination.articles.total}
+									limit={state.pagination.articles.limit}
+									currentPage={state.pagination.articles.page}
 									onChangePage={onChangePage}
 									onChangeLimit={onChangeLimit}
 								/>
-								<BlockUIComponent blocking={state.deleting} />
+								<BlockUIComponent blocking={state.deletings.articles} />
 							</div>
 						)
 					)}
