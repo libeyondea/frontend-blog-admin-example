@@ -67,9 +67,9 @@ const ListArticleComponent = () => {
 						token: auth.token.access_token
 					})
 					.then((response) => {
-						if (response.data.success) {
+						if (!response.data.success) {
 							console.log('Error');
-							return reject(new Error('Errorrrrrrrrrrrrrrr'));
+							return reject(new Error('Error'));
 						}
 						return resolve(response);
 					})
