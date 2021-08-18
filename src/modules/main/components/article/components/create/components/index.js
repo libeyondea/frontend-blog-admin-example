@@ -6,7 +6,6 @@ import Card from 'common/components/Card/components';
 import Breadcrumb from 'common/components/Breadcrumb/components';
 import history from 'common/utils/history';
 import classNames from 'classnames';
-import { isEmpty } from 'lodash';
 import ImageInput from 'common/components/ImageInput/components';
 import MarkDownEditor from 'common/components/MarkDownEditor/components';
 import AsyncCreatableSelect from 'react-select/async-creatable';
