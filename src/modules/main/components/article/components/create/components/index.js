@@ -198,11 +198,11 @@ const CreateArticleComponent = () => {
 								value={formik.values.category}
 								name="category"
 								id="category"
-								disabled={state.loadings.categories || isEmpty(state.data.categories)}
+								disabled={state.loadings.categories || !state.data.categories.length}
 							>
 								{state.loadings.categories ? (
 									<option value="">Loading...</option>
-								) : isEmpty(state.data.categories) ? (
+								) : !state.data.categories.length ? (
 									<option value="">Empty category</option>
 								) : (
 									<>

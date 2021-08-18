@@ -7,9 +7,13 @@ const initalState = {
 const appStateReducer = (state = initalState, action) => {
 	switch (action.type) {
 		case actionTypes.CHANGE_APP_STATE_INITIALIZED_SUCCEED:
-			return { initialized: action.payload.newAppStateInitialized };
+			return {
+				initialized: action.payload.newAppStateInitialized
+			};
 		default:
-			return { ...state };
+			return {
+				...state
+			};
 	}
 };
 

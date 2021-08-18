@@ -1,9 +1,9 @@
-import { setCookie } from 'common/utils/session';
+import { setCookie } from 'common/utils/cookies';
 
 const accessControl = {
 	checkRoute: (store, history, pathname) => {
-		let state = store.getState();
-		console.log('redner');
+		const state = store.getState();
+
 		if (pathname !== '/' && state.appState.initialized !== 'APP_STATE_INITIALIZED_YES') {
 			setCookie('initial_url', pathname);
 			history.push(`/`);

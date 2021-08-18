@@ -7,6 +7,7 @@ import CustomImageComponent from 'common/components/CustomImage/components';
 import CustomLinkComponent from 'common/components/CustomLink/components';
 import CustomToggle from 'common/components/CustomToggle/components';
 import { useLocation } from 'react-router-dom';
+import config from 'config';
 
 const SidebarComponent = ({ wrapperRef }) => {
 	const location = useLocation();
@@ -15,13 +16,7 @@ const SidebarComponent = ({ wrapperRef }) => {
 		<div className="main-sidebar shadow-sm" ref={wrapperRef}>
 			<div className="py-2 px-4 border-bottom border-secondary sidebar-header">
 				<CustomLinkComponent href="/" className="d-flex align-items-center text-white text-decoration-none">
-					<CustomImageComponent
-						className="rounded-circle"
-						src="https://elasticbeanstalk-ap-southeast-1-153036539674.s3.ap-southeast-1.amazonaws.com/images/6666666666.png"
-						width={42}
-						height={42}
-						alt=""
-					/>
+					<CustomImageComponent className="rounded-circle" src={config.LOGO_URL} width={42} height={42} alt="" />
 					<span className="ms-2 fs-5 fw-bolder">De4th Zone</span>
 				</CustomLinkComponent>
 			</div>

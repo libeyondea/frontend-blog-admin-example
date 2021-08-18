@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
 import httpRequest from 'common/utils/httpRequest';
-import { getCookie } from 'common/utils/session';
+import { getCookie } from 'common/utils/cookies';
 import MarkDownEditor from 'common/components/MarkDownEditor/components';
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import Card from 'common/components/Card/components';
@@ -252,11 +252,11 @@ const EditArticleComponent = () => {
 									value={formik.values.category}
 									name="category"
 									id="category"
-									disabled={state.loadings.categories || isEmpty(state.data.categories)}
+									disabled={state.loadings.categories || !state.data.categories.length}
 								>
 									{state.loadings.categories ? (
 										<option value="">Loading...</option>
-									) : isEmpty(state.data.categories) ? (
+									) : !state.data.categories.length ? (
 										<option value="">Empty category</option>
 									) : (
 										<>

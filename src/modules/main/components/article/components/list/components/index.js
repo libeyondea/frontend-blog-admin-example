@@ -1,3 +1,4 @@
+import BlockUIComponent from 'common/components/BlockUI/components';
 import Breadcrumb from 'common/components/Breadcrumb/components';
 import Card from 'common/components/Card/components';
 import CustomImageComponent from 'common/components/CustomImage/components';
@@ -54,27 +55,76 @@ const ListArticleComponent = () => {
 
 	const onDeleteClicked = async (event, article) => {
 		event.preventDefault();
-		try {
-			if (window.confirm('Do you want to delete?')) {
-				setState((prevState) => ({
-					...prevState,
-					deleting: true
-				}));
-				const response = await httpRequest.delete({
-					url: `/articles/${article.id}`,
-					token: auth.token.access_token
-				});
-				if (response.data.success) {
-					listArticles();
-				}
-			}
-		} catch (error) {
-			console.log(error);
-		} finally {
+		if (window.confirm('Do you want to delete?')) {
 			setState((prevState) => ({
 				...prevState,
-				deleting: false
+				deleting: true
 			}));
+			new Promise((resolve, reject) => {
+				httpRequest
+					.delete({
+						url: `/articles/${article.id}`,
+						token: auth.token.access_token
+					})
+					.then((response) => {
+						if (response.data.success) {
+							console.log('Error');
+							return reject(new Error('Errorrrrrrrrrrrrrrr'));
+						}
+						return resolve(response);
+					})
+					.catch((error) => {
+						console.log(error);
+					})
+					.finally(() => {});
+			})
+				.then((result) => {
+					if (!result.data.success) {
+						console.log('Error');
+						return;
+					}
+					httpRequest
+						.get({
+							url: `/articles`,
+							token: auth.token.access_token,
+							params: {
+								offset: (pageNumber(state.pagination.page) - 1) * state.pagination.limit,
+								limit: state.pagination.limit,
+								sort_by: state.filter.sortBy,
+								sort_direction: state.filter.sortDirection
+							}
+						})
+						.then((response) => {
+							if (!response.data.success) {
+								console.log('Error');
+								return;
+							}
+							setState((prevState) => ({
+								...prevState,
+								data: {
+									...prevState.data,
+									articles: response.data.data
+								},
+								pagination: {
+									...prevState.pagination,
+									total: response.data.meta.total
+								}
+							}));
+						})
+						.catch((error) => {
+							console.log(error);
+						})
+						.finally(() => {
+							setState((prevState) => ({
+								...prevState,
+								deleting: false
+							}));
+						});
+				})
+				.catch((error) => {
+					console.log(error);
+				})
+				.finally(() => {});
 		}
 	};
 
@@ -132,7 +182,7 @@ const ListArticleComponent = () => {
 						<TableLoading />
 					) : (
 						!!state.data.articles.length && (
-							<div style={state.deleting ? { pointerEvents: 'none', opacity: 0.4 } : {}}>
+							<div className="position-relative">
 								<div className="table-responsive-xxl mb-3">
 									<table className="table table-striped table-hover table-bordered mb-0" style={{ minWidth: 888 }}>
 										<thead>
@@ -206,6 +256,7 @@ const ListArticleComponent = () => {
 									onChangePage={onChangePage}
 									onChangeLimit={onChangeLimit}
 								/>
+								<BlockUIComponent blocking={state.deleting} />
 							</div>
 						)
 					)}

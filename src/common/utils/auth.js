@@ -1,11 +1,11 @@
 import httpRequest from './httpRequest';
-import { removeCookie } from './session';
+import { removeCookie } from './cookies';
 
-export function logout(history, authData, changeAuthData) {
-	if (authData) {
+export function logout(history, auth, changeAuthData) {
+	if (auth) {
 		httpRequest.get({
 			url: '/logout',
-			token: authData.token.access_token
+			token: auth.token.access_token
 		});
 	}
 	removeCookie('token');

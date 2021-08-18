@@ -1,9 +1,5 @@
 const config = {
-	API: {
-		URL: {
-			ROOT_URL: 'http://localhost:666/admin'
-		}
-	},
+	LOGO_URL: '/6666666666.png',
 	REQUEST: {
 		TIMEOUT: 30000
 	}

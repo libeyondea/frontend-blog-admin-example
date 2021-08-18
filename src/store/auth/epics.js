@@ -7,6 +7,8 @@ export const changeAuthEpic = (action$) =>
 		filter((action) => action.type === actionTypes.CHANGE_AUTH_REQUESTED),
 		map((action) => ({
 			type: actionTypes.CHANGE_AUTH_SUCCEED,
-			payload: { ...action.payload }
+			payload: {
+				...action.payload
+			}
 		}))
 	);

@@ -1,6 +1,6 @@
 import history from 'common/utils/history';
 import httpRequest from 'common/utils/httpRequest';
-import { setCookie } from 'common/utils/session';
+import { setCookie } from 'common/utils/cookies';
 import { useFormik } from 'formik';
 import React from 'react';
 import { withRouter } from 'react-router-dom';

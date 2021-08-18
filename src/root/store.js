@@ -16,7 +16,14 @@ const configureStore = () => {
 			appState: appStateReducer,
 			appAuth: authReducer
 		}),
-		composeEnhancers(applyMiddleware(createLogger({ predicate: () => true }), epicMiddleware))
+		composeEnhancers(
+			applyMiddleware(
+				createLogger({
+					predicate: () => true
+				}),
+				epicMiddleware
+			)
+		)
 	);
 
 	epicMiddleware.run(combineEpics(changeAppStateInitializedEpic, changeAuthEpic));

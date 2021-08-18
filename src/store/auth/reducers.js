@@ -7,9 +7,13 @@ const initalState = {
 const authReducer = (state = initalState, action) => {
 	switch (action.type) {
 		case actionTypes.CHANGE_AUTH_SUCCEED:
-			return { current: action.payload.newAuth };
+			return {
+				current: action.payload.newAuth
+			};
 		default:
-			return { ...state };
+			return {
+				...state
+			};
 	}
 };
 

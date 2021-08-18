@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import React, { useContext } from 'react';
 import { AccordionContext, useAccordionButton } from 'react-bootstrap';
 import { FaChevronLeft } from 'react-icons/fa';
-
 import styles from '../styles/styles.module.scss';
 
 const CustomToggle = ({ children, eventKey, callback, className }) => {

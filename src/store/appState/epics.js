@@ -7,6 +7,8 @@ export const changeAppStateInitializedEpic = (action$) =>
 		filter((action) => action.type === actionTypes.CHANGE_APP_STATE_INITIALIZED_REQUESTED),
 		map((action) => ({
 			type: actionTypes.CHANGE_APP_STATE_INITIALIZED_SUCCEED,
-			payload: { ...action.payload }
+			payload: {
+				...action.payload
+			}
 		}))
 	);
