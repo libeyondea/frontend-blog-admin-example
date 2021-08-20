@@ -92,13 +92,13 @@ const SidebarComponent = ({ wrapperRef }) => {
 						as="li"
 						className="list-group-item border-0 p-0"
 						defaultActiveKey={
-							location.pathname === '/categories/lists' || location.pathname === '/categories/create' ? 'categories' : ''
+							location.pathname === '/main/categories' || location.pathname === '/main/categories/create' ? 'categories' : ''
 						}
 					>
 						<CustomToggle
 							eventKey="categories"
 							className={classNames({
-								'active-page': location.pathname === '/categories/lists' || location.pathname === '/categories/create'
+								'active-page': location.pathname === '/main/categories' || location.pathname === '/main/categories/create'
 							})}
 						>
 							<>
@@ -108,17 +108,17 @@ const SidebarComponent = ({ wrapperRef }) => {
 						<Accordion.Collapse eventKey="categories">
 							<>
 								<CustomLinkComponent
-									href={`/categories/lists`}
+									href="/main/categories"
 									className={classNames('d-flex align-items-center dropdown-item p-2 ps-4 mb-1', {
-										'active-page': location.pathname === '/categories/lists'
+										'active-page': location.pathname === '/main/categories'
 									})}
 								>
 									<FaListAlt className="me-2 fs-5" /> Lists
 								</CustomLinkComponent>
 								<CustomLinkComponent
-									href={`/categories/create`}
+									href="/main/categories/create"
 									className={classNames('d-flex align-items-center dropdown-item p-2 ps-4 mb-1', {
-										'active-page': location.pathname === '/categories/create'
+										'active-page': location.pathname === '/main/categories/create'
 									})}
 								>
 									<FaPlus className="me-2 fs-5" /> Create
@@ -129,12 +129,12 @@ const SidebarComponent = ({ wrapperRef }) => {
 					<Accordion
 						as="li"
 						className="list-group-item border-0 p-0"
-						defaultActiveKey={location.pathname === '/tags/lists' || location.pathname === '/tags/create' ? 'tags' : ''}
+						defaultActiveKey={location.pathname === '/main/tags' || location.pathname === '/main/tags/create' ? 'tags' : ''}
 					>
 						<CustomToggle
 							eventKey="tags"
 							className={classNames({
-								'active-page': location.pathname === '/tags/lists' || location.pathname === '/tags/create'
+								'active-page': location.pathname === '/main/tags' || location.pathname === '/main/tags/create'
 							})}
 						>
 							<>
@@ -144,17 +144,17 @@ const SidebarComponent = ({ wrapperRef }) => {
 						<Accordion.Collapse eventKey="tags">
 							<>
 								<CustomLinkComponent
-									href={`/tags/lists`}
+									href="/main/tags"
 									className={classNames('d-flex align-items-center dropdown-item p-2 ps-4 mb-1', {
-										'active-page': location.pathname === '/tags/lists'
+										'active-page': location.pathname === '/main/tags'
 									})}
 								>
 									<FaListAlt className="me-2 fs-5" /> Lists
 								</CustomLinkComponent>
 								<CustomLinkComponent
-									href={`/tags/create`}
+									href="/main/tags/create"
 									className={classNames('d-flex align-items-center dropdown-item p-2 ps-4 mb-1', {
-										'active-page': location.pathname === '/tags/create'
+										'active-page': location.pathname === '/main/tags/create'
 									})}
 								>
 									<FaPlus className="me-2 fs-5" /> Create

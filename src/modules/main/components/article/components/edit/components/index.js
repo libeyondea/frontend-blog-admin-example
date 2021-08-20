@@ -1,7 +1,6 @@
 import { useFormik } from 'formik';
 import React, { useEffect, useState } from 'react';
 import * as Yup from 'yup';
-
 import httpRequest from 'common/utils/httpRequest';
 import MarkDownEditor from 'common/components/MarkDownEditor/components';
 import AsyncCreatableSelect from 'react-select/async-creatable';
@@ -27,6 +26,30 @@ const EditArticleComponent = () => {
 			article: false
 		}
 	});
+
+	const promiseTags = (q) => {
+		return httpRequest
+			.get({
+				url: `/search`,
+				token: auth.token.access_token,
+				params: {
+					type: 'tag',
+					q: q
+				}
+			})
+			.then((response) => {
+				if (!response.data.success) {
+					console.log('Error');
+					return [];
+				}
+				return response.data.data;
+			})
+			.catch((error) => {
+				console.log(error);
+				return [];
+			})
+			.finally(() => {});
+	};
 
 	useEffect(() => {
 		setState((prevState) => ({
@@ -67,31 +90,6 @@ const EditArticleComponent = () => {
 				}));
 			});
 	}, [auth.token.access_token]);
-
-	const promiseTags = (q) => {
-		return httpRequest
-			.get({
-				url: `/search`,
-				token: auth.token.access_token,
-				params: {
-					type: 'tag',
-					q: q
-				}
-			})
-			.then((response) => {
-				if (!response.data.success) {
-					console.log('Error');
-					return [];
-				}
-				console.log(response.data.data);
-				return response.data.data;
-			})
-			.catch((error) => {
-				console.log(error);
-				return [];
-			})
-			.finally(() => {});
-	};
 
 	useEffect(() => {
 		setState((prevState) => ({
@@ -206,10 +204,10 @@ const EditArticleComponent = () => {
 	return (
 		<>
 			<div className="content-header py-3">
-				<Breadcrumb>Create article</Breadcrumb>
+				<Breadcrumb>Edit article</Breadcrumb>
 			</div>
 			<div className="content-body">
-				<Card header="Create article">
+				<Card header="Edit article">
 					{state.loadings.article ? (
 						<div>Loading...</div>
 					) : (

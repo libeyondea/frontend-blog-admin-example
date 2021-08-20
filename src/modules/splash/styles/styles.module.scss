@@ -1,0 +1,18 @@
+.loading {
+	position: fixed;
+	top: -100%;
+	right: -100%;
+	left: -100%;
+	bottom: -100%;
+	margin: auto;
+	animation: spinloading 2s infinite linear;
+}
+
+@keyframes spinloading {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}

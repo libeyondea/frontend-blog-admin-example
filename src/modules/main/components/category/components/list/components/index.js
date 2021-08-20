@@ -1,7 +1,6 @@
 import BlockUIComponent from 'common/components/BlockUI/components';
 import Breadcrumb from 'common/components/Breadcrumb/components';
 import Card from 'common/components/Card/components';
-import CustomImageComponent from 'common/components/CustomImage/components';
 import Pagination from 'common/components/Pagination/components';
 import TableLoading from 'common/components/TableLoading/components';
 import history from 'common/utils/history';
@@ -11,15 +10,15 @@ import React, { useEffect, useState } from 'react';
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 
-const ListArticleComponent = () => {
+const ListCategoryComponent = () => {
 	const auth = useSelector((state) => state.appAuth.current);
 
 	const [state, setState] = useState({
 		data: {
-			articles: []
+			categories: []
 		},
 		pagination: {
-			articles: {
+			categories: {
 				page: 1,
 				limit: 5,
 				limits: [5, 10, 20, 100],
@@ -27,16 +26,16 @@ const ListArticleComponent = () => {
 			}
 		},
 		filters: {
-			articles: {
+			categories: {
 				sortBy: 'created_at',
 				sortDirection: 'desc'
 			}
 		},
 		loadings: {
-			articles: false
+			categories: false
 		},
 		deletings: {
-			articles: false
+			categories: false
 		}
 	});
 
@@ -45,8 +44,8 @@ const ListArticleComponent = () => {
 			...prevState,
 			pagination: {
 				...prevState.pagination,
-				articles: {
-					...prevState.pagination.articles,
+				categories: {
+					...prevState.pagination.categories,
 					page: page
 				}
 			}
@@ -58,8 +57,8 @@ const ListArticleComponent = () => {
 			...prevState,
 			pagination: {
 				...prevState.pagination,
-				articles: {
-					...prevState.pagination.articles,
+				categories: {
+					...prevState.pagination.categories,
 					limit: limit,
 					page: 1
 				}
@@ -67,20 +66,20 @@ const ListArticleComponent = () => {
 		}));
 	};
 
-	const onDeleteClicked = (event, article) => {
+	const onDeleteClicked = (event, category) => {
 		event.preventDefault();
 		if (window.confirm('Do you want to delete?')) {
 			setState((prevState) => ({
 				...prevState,
 				deletings: {
 					...prevState.deletings,
-					articles: true
+					categories: true
 				}
 			}));
 			new Promise((resolve, reject) => {
 				httpRequest
 					.delete({
-						url: `/articles/${article.id}`,
+						url: `/categories/${category.id}`,
 						token: auth.token.access_token
 					})
 					.then((response) => {
@@ -102,13 +101,13 @@ const ListArticleComponent = () => {
 					}
 					httpRequest
 						.get({
-							url: `/articles`,
+							url: `/categories`,
 							token: auth.token.access_token,
 							params: {
-								offset: (pageNumber(state.pagination.articles.page) - 1) * state.pagination.articles.limit,
-								limit: state.pagination.articles.limit,
-								sort_by: state.filters.articles.sortBy,
-								sort_direction: state.filters.articles.sortDirection
+								offset: (pageNumber(state.pagination.categories.page) - 1) * state.pagination.categories.limit,
+								limit: state.pagination.categories.limit,
+								sort_by: state.filters.categories.sortBy,
+								sort_direction: state.filters.categories.sortDirection
 							}
 						})
 						.then((response) => {
@@ -120,12 +119,12 @@ const ListArticleComponent = () => {
 								...prevState,
 								data: {
 									...prevState.data,
-									articles: response.data.data
+									categories: response.data.data
 								},
 								pagination: {
 									...prevState.pagination,
-									articles: {
-										...prevState.pagination.articles,
+									categories: {
+										...prevState.pagination.categories,
 										total: response.data.meta.total
 									}
 								}
@@ -139,7 +138,7 @@ const ListArticleComponent = () => {
 								...prevState,
 								deletings: {
 									...prevState.deletings,
-									articles: false
+									categories: false
 								}
 							}));
 						});
@@ -159,8 +158,8 @@ const ListArticleComponent = () => {
 				...prevState,
 				filters: {
 					...prevState.filters,
-					articles: {
-						...prevState.filters.articles,
+					categories: {
+						...prevState.filters.categories,
 						sortBy: event.target.value
 					}
 				}
@@ -176,8 +175,8 @@ const ListArticleComponent = () => {
 				...prevState,
 				filters: {
 					...prevState.filters,
-					articles: {
-						...prevState.filters.articles,
+					categories: {
+						...prevState.filters.categories,
 						sortDirection: event.target.value
 					}
 				}
@@ -190,18 +189,18 @@ const ListArticleComponent = () => {
 			...prevState,
 			loadings: {
 				...prevState.loadings,
-				articles: true
+				categories: true
 			}
 		}));
 		httpRequest
 			.get({
-				url: `/articles`,
+				url: `/categories`,
 				token: auth.token.access_token,
 				params: {
-					offset: (pageNumber(state.pagination.articles.page) - 1) * state.pagination.articles.limit,
-					limit: state.pagination.articles.limit,
-					sort_by: state.filters.articles.sortBy,
-					sort_direction: state.filters.articles.sortDirection
+					offset: (pageNumber(state.pagination.categories.page) - 1) * state.pagination.categories.limit,
+					limit: state.pagination.categories.limit,
+					sort_by: state.filters.categories.sortBy,
+					sort_direction: state.filters.categories.sortDirection
 				}
 			})
 			.then((response) => {
@@ -213,12 +212,12 @@ const ListArticleComponent = () => {
 					...prevState,
 					data: {
 						...prevState.data,
-						articles: response.data.data
+						categories: response.data.data
 					},
 					pagination: {
 						...prevState.pagination,
-						articles: {
-							...prevState.pagination.articles,
+						categories: {
+							...prevState.pagination.categories,
 							total: response.data.meta.total
 						}
 					}
@@ -232,17 +231,17 @@ const ListArticleComponent = () => {
 					...prevState,
 					loadings: {
 						...prevState.loadings,
-						articles: false
+						categories: false
 					}
 				}));
 			});
 		return () => {};
 	}, [
 		auth.token.access_token,
-		state.filters.articles.sortBy,
-		state.filters.articles.sortDirection,
-		state.pagination.articles.limit,
-		state.pagination.articles.page
+		state.filters.categories.sortBy,
+		state.filters.categories.sortDirection,
+		state.pagination.categories.limit,
+		state.pagination.categories.page
 	]);
 
 	const sortByList = [
@@ -259,20 +258,8 @@ const ListArticleComponent = () => {
 			label: 'Slug'
 		},
 		{
-			value: 'category',
-			label: 'Category'
-		},
-		{
-			value: 'tags',
-			label: 'Tags'
-		},
-		{
-			value: 'published',
-			label: 'Published'
-		},
-		{
-			value: 'pinned',
-			label: 'Pinned'
+			value: 'total_articles',
+			label: 'Total articles'
 		}
 	];
 
@@ -290,14 +277,14 @@ const ListArticleComponent = () => {
 	return (
 		<>
 			<div className="content-header py-3">
-				<Breadcrumb>List articles</Breadcrumb>
+				<Breadcrumb>List categories</Breadcrumb>
 			</div>
 			<div className="content-body">
-				<Card header="List articles">
-					{state.loadings.articles ? (
+				<Card header="List categories">
+					{state.loadings.categories ? (
 						<TableLoading />
 					) : (
-						!!state.data.articles.length && (
+						!!state.data.categories.length && (
 							<div className="position-relative">
 								<div className="d-flex justify-content-end flex-column flex-sm-row">
 									<div className="d-flex align-items-center mb-3 me-0 me-sm-3">
@@ -307,7 +294,7 @@ const ListArticleComponent = () => {
 										<select
 											id="sort_by"
 											className="form-select form-select-sm w-auto"
-											value={state.filters.articles.sortBy}
+											value={state.filters.categories.sortBy}
 											onChange={(event) => onChangeSortBy(event)}
 										>
 											<option value="">Select</option>
@@ -325,7 +312,7 @@ const ListArticleComponent = () => {
 										<select
 											id="sort_direction"
 											className="form-select form-select-sm w-auto"
-											value={state.filters.articles.sortDirection}
+											value={state.filters.categories.sortDirection}
 											onChange={(event) => onChangeSortDirection(event)}
 										>
 											<option value="">Select</option>
@@ -342,56 +329,33 @@ const ListArticleComponent = () => {
 										<thead>
 											<tr>
 												<th className="align-middle text-center">Id</th>
-												<th className="align-middle text-center">Image</th>
 												<th className="align-middle text-center">Title</th>
 												<th className="align-middle text-center">Slug</th>
-												<th className="align-middle text-center">Category</th>
-												<th className="align-middle text-center">Tags</th>
-												<th className="align-middle text-center">Published</th>
-												<th className="align-middle text-center">Pinned</th>
+												<th className="align-middle text-center">Total articles</th>
 												<th className="align-middle text-center"></th>
 											</tr>
 										</thead>
 										<tbody>
-											{state.data.articles.map((article, index) => (
+											{state.data.categories.map((category, index) => (
 												<tr key={index}>
-													<td className="align-middle">{article.id}</td>
-													<td className="align-middle">
-														{article.image && (
-															<CustomImageComponent src={article.image} width={150} height={90} alt={article.title} />
-														)}
-													</td>
-													<td className="align-middle">{article.title}</td>
-													<td className="align-middle">{article.slug}</td>
-													<td className="align-middle">{article.category.title}</td>
-													<td className="align-middle">
-														{article?.tags?.map((tag, index) => (
-															<button
-																type="button"
-																className="badge bg-transparent rounded-pill text-decoration-none text-secondary border me-1"
-																key={index}
-															>
-																<span className="text-muted">#</span>
-																{tag.title}
-															</button>
-														))}
-													</td>
-													<td className="align-middle">{article.published ? 'Yes' : 'No'}</td>
-													<td className="align-middle">{article.pinned ? 'Yes' : 'No'}</td>
+													<td className="align-middle">{category.id}</td>
+													<td className="align-middle">{category.title}</td>
+													<td className="align-middle">{category.slug}</td>
+													<td className="align-middle">{category.total_articles}</td>
 													<td className="align-middle">
 														<div className="d-flex align-items-center justify-content-center">
 															<button
 																type="button"
 																className="btn btn-secondary d-flex align-items-center me-2"
-																onClick={() => history.push(`/main/articles/edit/${article.id}`)}
+																onClick={() => history.push(`/main/categories/edit/${category.id}`)}
 															>
 																<FaRegEdit />
 															</button>
 															<button
 																type="button"
 																className="btn btn-danger d-flex align-items-center"
-																onClick={(event) => onDeleteClicked(event, article)}
-																disabled={state.deletings.articles}
+																onClick={(event) => onDeleteClicked(event, category)}
+																disabled={state.deletings.categories}
 															>
 																<FaRegTrashAlt />
 															</button>
@@ -403,14 +367,14 @@ const ListArticleComponent = () => {
 									</table>
 								</div>
 								<Pagination
-									limits={state.pagination.articles.limits}
-									total={state.pagination.articles.total}
-									limit={state.pagination.articles.limit}
-									currentPage={state.pagination.articles.page}
+									limits={state.pagination.categories.limits}
+									total={state.pagination.categories.total}
+									limit={state.pagination.categories.limit}
+									currentPage={state.pagination.categories.page}
 									onChangePage={onChangePage}
 									onChangeLimit={onChangeLimit}
 								/>
-								<BlockUIComponent blocking={state.deletings.articles} />
+								<BlockUIComponent blocking={state.deletings.categories} />
 							</div>
 						)
 					)}
@@ -420,4 +384,4 @@ const ListArticleComponent = () => {
 	);
 };
 
-export default ListArticleComponent;
+export default ListCategoryComponent;

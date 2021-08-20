@@ -85,7 +85,7 @@ const SigninCompoment = () => {
 				</div>
 				<div className="text-center">
 					<button className="btn btn-primary btn-lg" type="submit" disabled={formik.isSubmitting}>
-						Login
+						{formik.isSubmitting ? 'Signing' : 'Signin'}
 					</button>
 				</div>
 			</form>

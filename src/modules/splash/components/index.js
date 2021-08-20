@@ -7,6 +7,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { changeAppStateInitialized } from 'store/appState/actions';
 import { changeAuth } from 'store/auth/actions';
+import CustomImageComponent from 'common/components/CustomImage/components';
+import config from 'config';
+import styles from '../styles/styles.module.scss';
 
 const SplashComponent = () => {
 	const auth = useSelector((state) => state.appAuth.current);
@@ -65,8 +68,14 @@ const SplashComponent = () => {
 	}, []);
 
 	return (
-		<div className="text-center">
-			<h1>Loading...</h1>
+		<div className="text-center vh-100">
+			<CustomImageComponent
+				className={`${styles.loading} rounded-circle`}
+				src={config.LOGO_URL}
+				width={122}
+				height={122}
+				alt="Loading..."
+			/>
 		</div>
 	);
 };

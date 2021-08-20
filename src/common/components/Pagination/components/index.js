@@ -12,11 +12,12 @@ const Pagination = ({ limits, total, limit, currentPage, onChangePage, onChangeL
 		onChangePage(page);
 	};
 
-	const onChangePageInputHandle = (event) => {
+	/* const onChangePageInputHandle = (event) => {
 		event.preventDefault();
-		const page = event.target.value ? parseInt(event.target.value) : 1;
+		const value = parseInt(event.target.value);
+		const page = value && value <= totalPage && value >= 1 ? value : 1;
 		onChangePage(page);
-	};
+	}; */
 
 	const onChangeLimitHandle = (event) => {
 		event.preventDefault();
@@ -26,7 +27,10 @@ const Pagination = ({ limits, total, limit, currentPage, onChangePage, onChangeL
 	return (
 		<div className="d-flex align-items-md-center flex-column flex-md-row">
 			<div className="d-flex align-items-center">
-				<span className="me-1">Page</span>
+				<span>
+					Showing {limit * currentPage - limit + 1} to {limit * currentPage} of {total} entries
+				</span>
+				{/* <span className="me-1">Page</span>
 				<input
 					className="form-control form-control-sm w-auto me-1"
 					type="number"
@@ -36,7 +40,8 @@ const Pagination = ({ limits, total, limit, currentPage, onChangePage, onChangeL
 					onChange={(event) => onChangePageInputHandle(event)}
 				/>
 				<span className="me-1">of</span>
-				<strong className="me-1">{totalPage}</strong>
+				<strong className="me-1">{totalPage}</strong> */}
+				<span className="mx-2">|</span>
 				<select className="form-select form-select-sm w-auto" value={limit} onChange={(event) => onChangeLimitHandle(event)}>
 					{limits.map((limit, index) => (
 						<option key={index} value={limit}>
