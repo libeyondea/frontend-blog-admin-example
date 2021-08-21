@@ -8,7 +8,7 @@ const AuthComponent = () => {
 	return (
 		<div className="container-fluid">
 			<div className="row min-vh-100">
-				<div className="col-md-5 mx-auto my-auto">{renderRoutes(Routes)}</div>
+				<div className="col-md-7 col-lg-5 mx-auto my-auto">{renderRoutes(Routes)}</div>
 			</div>
 		</div>
 	);
