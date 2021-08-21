@@ -1,9 +1,9 @@
 import React from 'react';
 import { renderRoutes } from 'react-router-config';
-import Routes from './router';
+import ArticleRouter from './router';
 
 const ArticleComponent = () => {
-	return <>{renderRoutes(Routes)}</>;
+	return <>{renderRoutes(ArticleRouter)}</>;
 };
 
 export default ArticleComponent;

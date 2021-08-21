@@ -1,13 +1,11 @@
 import { renderRoutes } from 'react-router-config';
 import classNames from 'classnames';
 import React, { useEffect, useRef, useState } from 'react';
-
 import useViewport from 'common/hooks/useViewport ';
-
-import Routes from './router';
 import NavbarComponent from './navbar';
 import SidebarComponent from './sidebar';
 import FooterComponent from './footer';
+import MainRouter from './router';
 
 const MainComponent = () => {
 	const [showMenu, setShowMenu] = useState(false);
@@ -35,7 +33,7 @@ const MainComponent = () => {
 			<NavbarComponent handleShowClose={handleShowClose} />
 			<SidebarComponent wrapperRef={wrapperRef} />
 			<div className="content-wrapper">
-				<div className="container-fluid">{renderRoutes(Routes)}</div>
+				<div className="container-fluid">{renderRoutes(MainRouter)}</div>
 			</div>
 			<FooterComponent />
 			<div className="sidebar-overlay"></div>

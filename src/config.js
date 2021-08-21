@@ -1,5 +1,5 @@
 const config = {
-	LOGO_URL: '/6666666666.png',
+	LOGO_URL: '/images/6666666666.png',
 	REQUEST: {
 		TIMEOUT: 30000
 	}

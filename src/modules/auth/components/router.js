@@ -3,7 +3,7 @@ import { Redirect } from 'react-router-dom';
 import SigninCompoment from './signin/components';
 import SignupComponent from './signup/components';
 
-const MainRouter = [
+const AuthRouter = [
 	{
 		path: `/auth/signin`,
 		exact: true,
@@ -20,4 +20,4 @@ const MainRouter = [
 	}
 ];
 
-export default MainRouter;
+export default AuthRouter;

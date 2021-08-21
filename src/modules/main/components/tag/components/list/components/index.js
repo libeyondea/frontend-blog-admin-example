@@ -328,11 +328,11 @@ const ListTagComponent = () => {
 									<table className="table table-striped table-hover table-bordered mb-0" style={{ minWidth: 888 }}>
 										<thead>
 											<tr>
-												<th className="align-middle text-center">Id</th>
-												<th className="align-middle text-center">Title</th>
-												<th className="align-middle text-center">Slug</th>
-												<th className="align-middle text-center">Total articles</th>
-												<th className="align-middle text-center"></th>
+												<th className="align-middle">Id</th>
+												<th className="align-middle">Title</th>
+												<th className="align-middle">Slug</th>
+												<th className="align-middle">Total articles</th>
+												<th className="align-middle"></th>
 											</tr>
 										</thead>
 										<tbody>

@@ -1,9 +1,9 @@
 import React from 'react';
 import { renderRoutes } from 'react-router-config';
-import Routes from './router';
+import CategoryRouter from './router';
 
 const CategoryComponent = () => {
-	return <>{renderRoutes(Routes)}</>;
+	return <>{renderRoutes(CategoryRouter)}</>;
 };
 
 export default CategoryComponent;

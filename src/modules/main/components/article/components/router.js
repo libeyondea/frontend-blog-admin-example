@@ -4,7 +4,7 @@ import CreateArticleComponent from './create/components';
 import EditArticleComponent from './edit/components';
 import ListArticleComponent from './list/components';
 
-const MainRouter = [
+const ArticleRouter = [
 	{
 		path: `/main/articles`,
 		exact: true,
@@ -26,4 +26,4 @@ const MainRouter = [
 	}
 ];
 
-export default MainRouter;
+export default ArticleRouter;

@@ -45,6 +45,7 @@ const SigninCompoment = () => {
 	return (
 		<Card className="p-4">
 			<h2 className="text-center mb-5">Signin admin</h2>
+
 			<form onSubmit={formik.handleSubmit}>
 				<div className="form-floating mb-3">
 					<input
@@ -60,7 +61,7 @@ const SigninCompoment = () => {
 						id="user_name"
 					/>
 					<label htmlFor="user_name" className="form-label">
-						User name <span className="text-danger">*</span>
+						User name <span className="text-danger">*</span> (User name: admin)
 					</label>
 					{formik.errors.user_name && formik.touched.user_name && (
 						<div className="invalid-feedback">{formik.errors.user_name}</div>
@@ -80,7 +81,7 @@ const SigninCompoment = () => {
 						id="password"
 					/>
 					<label htmlFor="password" className="form-label">
-						Password <span className="text-danger">*</span>
+						Password <span className="text-danger">*</span> (Password: admin)
 					</label>
 					{formik.errors.password && formik.touched.password && <div className="invalid-feedback">{formik.errors.password}</div>}
 				</div>

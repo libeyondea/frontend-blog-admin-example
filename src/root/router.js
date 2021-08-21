@@ -4,7 +4,7 @@ import SplashComponent from 'modules/splash/components';
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 
-const AppRouter = [
+const RootRouter = [
 	{
 		path: `/auth`,
 		component: AuthComponent
@@ -24,4 +24,4 @@ const AppRouter = [
 	}
 ];
 
-export default AppRouter;
+export default RootRouter;

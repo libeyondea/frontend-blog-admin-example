@@ -1,9 +1,9 @@
 import React from 'react';
 import { renderRoutes } from 'react-router-config';
-import Routes from './router';
+import TagRouter from './router';
 
 const TagComponent = () => {
-	return <>{renderRoutes(Routes)}</>;
+	return <>{renderRoutes(TagRouter)}</>;
 };
 
 export default TagComponent;

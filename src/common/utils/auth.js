@@ -10,5 +10,5 @@ export function logout(history, auth, changeAuthData) {
 	}
 	removeCookie('token');
 	changeAuthData(null);
-	history.push(`/auth/signin`);
+	history.push('/auth/signin');
 }
