@@ -6,6 +6,7 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import * as Yup from 'yup';
 import classNames from 'classnames';
+import Card from 'common/components/Card/components';
 
 const SigninCompoment = () => {
 	const formik = useFormik({
@@ -42,7 +43,7 @@ const SigninCompoment = () => {
 		}
 	});
 	return (
-		<>
+		<Card className="p-4">
 			<h2 className="text-center mb-5">Signin admin</h2>
 			<form onSubmit={formik.handleSubmit}>
 				<div className="form-floating mb-3">
@@ -89,7 +90,7 @@ const SigninCompoment = () => {
 					</button>
 				</div>
 			</form>
-		</>
+		</Card>
 	);
 };
 
