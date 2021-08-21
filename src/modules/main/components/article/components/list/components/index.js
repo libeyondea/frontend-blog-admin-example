@@ -259,8 +259,8 @@ const ListArticleComponent = () => {
 			label: 'Slug'
 		},
 		{
-			value: 'category',
-			label: 'Category'
+			value: 'categories',
+			label: 'Categories'
 		},
 		{
 			value: 'tags',
@@ -345,7 +345,7 @@ const ListArticleComponent = () => {
 												<th className="align-middle text-center">Image</th>
 												<th className="align-middle text-center">Title</th>
 												<th className="align-middle text-center">Slug</th>
-												<th className="align-middle text-center">Category</th>
+												<th className="align-middle text-center">Categories</th>
 												<th className="align-middle text-center">Tags</th>
 												<th className="align-middle text-center">Published</th>
 												<th className="align-middle text-center">Pinned</th>
@@ -363,7 +363,17 @@ const ListArticleComponent = () => {
 													</td>
 													<td className="align-middle">{article.title}</td>
 													<td className="align-middle">{article.slug}</td>
-													<td className="align-middle">{article.category.title}</td>
+													<td className="align-middle">
+														{article?.categories?.map((category, index) => (
+															<button
+																type="button"
+																className="badge bg-transparent rounded-pill text-decoration-none text-secondary border me-1"
+																key={index}
+															>
+																{category.title}
+															</button>
+														))}
+													</td>
 													<td className="align-middle">
 														{article?.tags?.map((tag, index) => (
 															<button

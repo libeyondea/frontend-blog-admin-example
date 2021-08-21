@@ -10,6 +10,7 @@ import history from 'common/utils/history';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import ImageInput from 'common/components/ImageInput/components';
+import AsyncSelect from 'react-select/async';
 import classNames from 'classnames';
 
 const EditArticleComponent = () => {
@@ -18,11 +19,9 @@ const EditArticleComponent = () => {
 
 	const [state, setState] = useState({
 		data: {
-			article: {},
-			categories: []
+			article: {}
 		},
 		loadings: {
-			categories: false,
 			article: false
 		}
 	});
@@ -51,45 +50,29 @@ const EditArticleComponent = () => {
 			.finally(() => {});
 	};
 
-	useEffect(() => {
-		setState((prevState) => ({
-			...prevState,
-			loadings: {
-				...prevState.loadings,
-				categories: true
-			}
-		}));
-		httpRequest
+	const promiseCategories = (q) => {
+		return httpRequest
 			.get({
-				url: `/categories`,
-				token: auth.token.access_token
+				url: `/search`,
+				token: auth.token.access_token,
+				params: {
+					type: 'category',
+					q: q
+				}
 			})
 			.then((response) => {
 				if (!response.data.success) {
 					console.log('Error');
-					return;
+					return [];
 				}
-				setState((prevState) => ({
-					...prevState,
-					data: {
-						...prevState.data,
-						categories: response.data.data
-					}
-				}));
+				return response.data.data;
 			})
 			.catch((error) => {
 				console.log(error);
+				return [];
 			})
-			.finally(() => {
-				setState((prevState) => ({
-					...prevState,
-					loadings: {
-						...prevState.loadings,
-						categories: false
-					}
-				}));
-			});
-	}, [auth.token.access_token]);
+			.finally(() => {});
+	};
 
 	useEffect(() => {
 		setState((prevState) => ({
@@ -135,8 +118,9 @@ const EditArticleComponent = () => {
 		enableReinitialize: true,
 		initialValues: {
 			title: state.data.article.title,
+			slug: state.data.article.slug,
 			content: state.data.article.content,
-			category: state.data.article.category?.id,
+			categories: state.data.article.categories,
 			tags: state.data.article.tags,
 			image: null,
 			pinned: Boolean(Number(state.data.article.pinned)),
@@ -156,8 +140,9 @@ const EditArticleComponent = () => {
 					(value) => value === null || (value && ['image/jpg', 'image/jpeg', 'image/gif', 'image/png'].includes(value.type))
 				),
 			title: Yup.string().required('Title is required').max(166, 'Title is maximum 166 characters'),
+			slug: Yup.string().max(200, 'Slug is maximum 200 characters'),
 			content: Yup.string().required('Content is required').max(60000, 'Content is maximum 60000 characters'),
-			category: Yup.number().integer('Invaild category').required('Select category'),
+			categories: Yup.array().min(1, 'Choose at least 1 category').max(6, 'Choose up to 6 categories'),
 			tags: Yup.array()
 				.min(1, 'Choose at least 1 tag')
 				.max(6, 'Choose up to 6 tags')
@@ -176,8 +161,9 @@ const EditArticleComponent = () => {
 					token: auth.token.access_token,
 					data: {
 						title: values.title,
+						slug: values.slug,
 						content: values.content,
-						category: values.category,
+						categories: JSON.stringify(values.categories),
 						tags: JSON.stringify(values.tags),
 						pinned: values.pinned,
 						published: values.published
@@ -211,8 +197,8 @@ const EditArticleComponent = () => {
 					{state.loadings.article ? (
 						<div>Loading...</div>
 					) : (
-						<form onSubmit={formik.handleSubmit}>
-							<div className="mb-3">
+						<form onSubmit={formik.handleSubmit} className="row g-3">
+							<div className="col-md-12">
 								<label htmlFor="image" className="form-label">
 									Image <span className="text-danger">*</span>
 								</label>
@@ -227,7 +213,7 @@ const EditArticleComponent = () => {
 									<div className="invalid-feedback d-block">{formik.errors.image}</div>
 								)}
 							</div>
-							<div className="mb-3">
+							<div className="col-md-6">
 								<label htmlFor="title" className="form-label">
 									Title <span className="text-danger">*</span>
 								</label>
@@ -245,41 +231,49 @@ const EditArticleComponent = () => {
 								/>
 								{formik.errors.title && formik.touched.title && <div className="invalid-feedback">{formik.errors.title}</div>}
 							</div>
-							<div className="mb-3">
-								<label htmlFor="category" className="form-label">
-									Category <span className="text-danger">*</span>
+							<div className="col-md-6">
+								<label htmlFor="slug" className="form-label">
+									Slug
 								</label>
-								<select
-									className={classNames('form-select', {
-										'is-invalid': formik.errors.category && formik.touched.category
+								<input
+									type="text"
+									placeholder="Enter slug"
+									className={classNames('form-control', {
+										'is-invalid': formik.errors.slug && formik.touched.slug
 									})}
 									onChange={formik.handleChange}
 									onBlur={formik.handleBlur}
-									value={formik.values.category}
-									name="category"
-									id="category"
-									disabled={state.loadings.categories || !state.data.categories.length}
-								>
-									{state.loadings.categories ? (
-										<option value="">Loading...</option>
-									) : !state.data.categories.length ? (
-										<option value="">Empty category</option>
-									) : (
-										<>
-											<option value="">Select category</option>
-											{state.data.categories.map((category) => (
-												<option value={category.id} key={category.id}>
-													{category.title}
-												</option>
-											))}
-										</>
-									)}
-								</select>
-								{formik.errors.category && formik.touched.category && (
-									<div className="invalid-feedback">{formik.errors.category}</div>
+									value={formik.values.slug}
+									name="slug"
+									id="slug"
+								/>
+								{formik.errors.slug && formik.touched.slug && <div className="invalid-feedback">{formik.errors.slug}</div>}
+							</div>
+							<div className="col-md-6">
+								<label htmlFor="categories" className="form-label">
+									Categories <span className="text-danger">*</span>
+								</label>
+								<AsyncSelect
+									id="categories"
+									name="categories"
+									cacheOptions
+									defaultOptions
+									isMulti
+									placeholder="Choose categories"
+									onChange={(value) => formik.setFieldValue('categories', value)}
+									onBlur={() => formik.setFieldTouched('categories', true)}
+									value={formik.values.categories}
+									loadOptions={promiseCategories}
+									getOptionValue={(option) => option.id}
+									getOptionLabel={(option) => option.title}
+								/>
+								{formik.errors.categories && formik.touched.categories && (
+									<div className="invalid-feedback d-block">
+										{formik.errors?.categories[0]?.title ? formik.errors.categories[0].title : formik.errors.categories}
+									</div>
 								)}
 							</div>
-							<div className="mb-3">
+							<div className="col-md-6">
 								<label htmlFor="tags" className="form-label">
 									Tags <span className="text-danger">*</span>
 								</label>
@@ -308,7 +302,7 @@ const EditArticleComponent = () => {
 									</div>
 								)}
 							</div>
-							<div className="mb-3">
+							<div className="col-md-12">
 								<label htmlFor="content" className="form-label">
 									Content <span className="text-danger">*</span>
 								</label>
@@ -323,43 +317,49 @@ const EditArticleComponent = () => {
 									<div className="invalid-feedback d-block">{formik.errors.content}</div>
 								)}
 							</div>
-							<div className="form-check form-switch mb-3">
-								<input
-									className={classNames('form-check-input', {
-										'is-invalid': formik.errors.pinned && formik.touched.pinned
-									})}
-									type="checkbox"
-									onChange={() => formik.setFieldValue('pinned', !formik.values.pinned)}
-									onBlur={() => formik.setFieldTouched('pinned', true)}
-									checked={formik.values.pinned}
-									id="pinned"
-									name="pinned"
-								/>
-								<label className="form-check-label" htmlFor="pinned">
-									Pinned
-								</label>
-								{formik.errors.pinned && formik.touched.pinned && <div className="invalid-feedback">{formik.errors.pinned}</div>}
+							<div className="col-md-12">
+								<div className="form-check form-switch m-0">
+									<input
+										className={classNames('form-check-input', {
+											'is-invalid': formik.errors.pinned && formik.touched.pinned
+										})}
+										type="checkbox"
+										onChange={() => formik.setFieldValue('pinned', !formik.values.pinned)}
+										onBlur={() => formik.setFieldTouched('pinned', true)}
+										checked={formik.values.pinned}
+										id="pinned"
+										name="pinned"
+									/>
+									<label className="form-check-label" htmlFor="pinned">
+										Pinned
+									</label>
+									{formik.errors.pinned && formik.touched.pinned && (
+										<div className="invalid-feedback">{formik.errors.pinned}</div>
+									)}
+								</div>
 							</div>
-							<div className="form-check form-switch mb-3">
-								<input
-									className={classNames('form-check-input', {
-										'is-invalid': formik.errors.published && formik.touched.published
-									})}
-									type="checkbox"
-									onChange={() => formik.setFieldValue('published', !formik.values.published)}
-									onBlur={() => formik.setFieldTouched('published', true)}
-									checked={formik.values.published}
-									id="published"
-									name="published"
-								/>
-								<label className="form-check-label" htmlFor="published">
-									Published
-								</label>
-								{formik.errors.published && formik.touched.published && (
-									<div className="invalid-feedback">{formik.errors.published}</div>
-								)}
+							<div className="col-md-12">
+								<div className="form-check form-switch m-0">
+									<input
+										className={classNames('form-check-input', {
+											'is-invalid': formik.errors.published && formik.touched.published
+										})}
+										type="checkbox"
+										onChange={() => formik.setFieldValue('published', !formik.values.published)}
+										onBlur={() => formik.setFieldTouched('published', true)}
+										checked={formik.values.published}
+										id="published"
+										name="published"
+									/>
+									<label className="form-check-label" htmlFor="published">
+										Published
+									</label>
+									{formik.errors.published && formik.touched.published && (
+										<div className="invalid-feedback">{formik.errors.published}</div>
+									)}
+								</div>
 							</div>
-							<div>
+							<div className="col-md-12">
 								<button className="btn btn-primary" type="submit" disabled={formik.isSubmitting}>
 									{formik.isSubmitting ? 'Submitting' : 'Submit'}
 								</button>

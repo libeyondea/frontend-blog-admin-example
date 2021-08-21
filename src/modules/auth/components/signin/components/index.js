@@ -34,7 +34,7 @@ const SigninCompoment = () => {
 				})
 				.catch((error) => {
 					console.log(error);
-					setErrors({ user_name: error.response.data.error.message, password: error.response.data.error.message });
+					setErrors({ user_name: error?.response?.data?.error?.message, password: error?.response?.data?.error?.message });
 				})
 				.finally(() => {
 					setSubmitting(false);
