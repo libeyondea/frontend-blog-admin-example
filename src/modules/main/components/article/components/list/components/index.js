@@ -267,12 +267,12 @@ const ListArticleComponent = () => {
 			label: 'Tags'
 		},
 		{
-			value: 'published',
-			label: 'Published'
+			value: 'article_status',
+			label: 'Article status'
 		},
 		{
-			value: 'pinned',
-			label: 'Pinned'
+			value: 'comment_status',
+			label: 'Comment status'
 		}
 	];
 
@@ -347,8 +347,8 @@ const ListArticleComponent = () => {
 												<th className="align-middle">Slug</th>
 												<th className="align-middle">Categories</th>
 												<th className="align-middle">Tags</th>
-												<th className="align-middle">Published</th>
-												<th className="align-middle">Pinned</th>
+												<th className="align-middle">Article status</th>
+												<th className="align-middle">Comment status</th>
 												<th className="align-middle"></th>
 											</tr>
 										</thead>
@@ -386,8 +386,8 @@ const ListArticleComponent = () => {
 															</button>
 														))}
 													</td>
-													<td className="align-middle">{article.published ? 'Yes' : 'No'}</td>
-													<td className="align-middle">{article.pinned ? 'Yes' : 'No'}</td>
+													<td className="align-middle">{article.article_status}</td>
+													<td className="align-middle">{article.comment_status}</td>
 													<td className="align-middle">
 														<div className="d-flex align-items-center justify-content-center">
 															<button

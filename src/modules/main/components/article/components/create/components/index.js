@@ -71,8 +71,8 @@ const CreateArticleComponent = () => {
 			categories: [],
 			tags: [],
 			image: null,
-			pinned: false,
-			published: true
+			article_status: 'publish',
+			comment_status: 'open'
 		},
 		validationSchema: Yup.object({
 			image: Yup.mixed()
@@ -99,8 +99,8 @@ const CreateArticleComponent = () => {
 						title: Yup.string().required().max(66, 'Tag name is maximum 66 characters')
 					})
 				),
-			pinned: Yup.bool().oneOf([true, false], 'Pinned invalid'),
-			published: Yup.bool().oneOf([true, false], 'Published invalid')
+			article_status: Yup.string().oneOf(['publish', 'pending', 'draft'], 'Status invalid'),
+			comment_status: Yup.string().oneOf(['open', 'closed'], 'Comments status invalid')
 		}),
 		onSubmit: (values, { setSubmitting, setErrors }) => {
 			httpRequest
@@ -113,8 +113,8 @@ const CreateArticleComponent = () => {
 						content: values.content,
 						categories: JSON.stringify(values.categories),
 						tags: JSON.stringify(values.tags),
-						pinned: values.pinned,
-						published: values.published
+						article_status: values.article_status,
+						comment_status: values.comment_status
 					},
 					files: {
 						image: values.image
@@ -256,45 +256,60 @@ const CreateArticleComponent = () => {
 								<div className="invalid-feedback d-block">{formik.errors.content}</div>
 							)}
 						</div>
-						<div className="col-md-12">
-							<div className="form-check form-switch m-0">
-								<input
-									className={classNames('form-check-input', {
-										'is-invalid': formik.errors.pinned && formik.touched.pinned
-									})}
-									type="checkbox"
-									onChange={() => formik.setFieldValue('pinned', !formik.values.pinned)}
-									onBlur={() => formik.setFieldTouched('pinned', true)}
-									checked={formik.values.pinned}
-									id="pinned"
-									name="pinned"
-								/>
-								<label className="form-check-label" htmlFor="pinned">
-									Pinned
-								</label>
-								{formik.errors.pinned && formik.touched.pinned && <div className="invalid-feedback">{formik.errors.pinned}</div>}
-							</div>
+						<div className="col-md-6">
+							<label htmlFor="article_status" className="form-label">
+								Article status <span className="text-danger">*</span>
+							</label>
+							<select
+								className={classNames('form-select', {
+									'is-invalid': formik.errors.article_status && formik.touched.article_status
+								})}
+								onChange={formik.handleChange}
+								onBlur={formik.handleBlur}
+								value={formik.values.article_status}
+								name="article_status"
+								id="article_status"
+							>
+								{[
+									{ value: 'publish', label: 'Published' },
+									{ value: 'pending', label: 'Pending' },
+									{ value: 'draft', label: 'Draft' }
+								].map((status, index) => (
+									<option value={status.value} key={index}>
+										{status.label}
+									</option>
+								))}
+							</select>
+							{formik.errors.article_status && formik.touched.article_status && (
+								<div className="invalid-feedback">{formik.errors.article_status}</div>
+							)}
 						</div>
-						<div className="col-md-12">
-							<div className="form-check form-switch m-0">
-								<input
-									className={classNames('form-check-input', {
-										'is-invalid': formik.errors.published && formik.touched.published
-									})}
-									type="checkbox"
-									onChange={() => formik.setFieldValue('published', !formik.values.published)}
-									onBlur={() => formik.setFieldTouched('published', true)}
-									checked={formik.values.published}
-									id="published"
-									name="published"
-								/>
-								<label className="form-check-label" htmlFor="published">
-									Published
-								</label>
-								{formik.errors.published && formik.touched.published && (
-									<div className="invalid-feedback">{formik.errors.published}</div>
-								)}
-							</div>
+						<div className="col-md-6">
+							<label htmlFor="comment_status" className="form-label">
+								Comments status <span className="text-danger">*</span>
+							</label>
+							<select
+								className={classNames('form-select', {
+									'is-invalid': formik.errors.comment_status && formik.touched.comment_status
+								})}
+								onChange={formik.handleChange}
+								onBlur={formik.handleBlur}
+								value={formik.values.comment_status}
+								name="comment_status"
+								id="comment_status"
+							>
+								{[
+									{ value: 'open', label: 'Open' },
+									{ value: 'closed', label: 'Closed' }
+								].map((status, index) => (
+									<option value={status.value} key={index}>
+										{status.label}
+									</option>
+								))}
+							</select>
+							{formik.errors.comment_status && formik.touched.comment_status && (
+								<div className="invalid-feedback">{formik.errors.comment_status}</div>
+							)}
 						</div>
 						<div className="col-md-12">
 							<button className="btn btn-primary" type="submit" disabled={formik.isSubmitting}>
