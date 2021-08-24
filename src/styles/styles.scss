@@ -183,16 +183,16 @@
 	animation-timing-function: linear;
 	background: linear-gradient(to right, rgba(255, 255, 255, 0.1) 10%, rgba(0, 0, 0, 0.05) 25%, rgba(255, 255, 255, 0.1) 40%);
 	box-shadow: inset 0 0 0 200px rgba(0, 0, 0, 0.025);
-	background-size: 800px 104px;
+	background-size: 666px;
 	position: relative;
 }
 
 @keyframes placeHolderShimmer {
 	0% {
-		background-position: -468px 0;
+		background-position: 0;
 	}
 	100% {
-		background-position: 468px 0;
+		background-position: 666px;
 	}
 }
 

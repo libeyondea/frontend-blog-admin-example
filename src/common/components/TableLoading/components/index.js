@@ -1,9 +1,14 @@
 import React from 'react';
+import classNames from 'classnames';
 
-const TableLoading = () => {
+const TableLoading = ({ className }) => {
 	return (
 		<div>
-			<table className="table table-striped table-hover table-bordered mb-0">
+			<table
+				className={classNames('table table-striped table-hover table-bordered mb-0', {
+					[className]: className
+				})}
+			>
 				<thead>
 					<tr>
 						<th>

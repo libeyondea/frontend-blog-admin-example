@@ -71,8 +71,7 @@ const CreateArticleComponent = () => {
 			categories: [],
 			tags: [],
 			image: null,
-			article_status: 'publish',
-			comment_status: 'open'
+			status: 'publish'
 		},
 		validationSchema: Yup.object({
 			image: Yup.mixed()
@@ -99,8 +98,7 @@ const CreateArticleComponent = () => {
 						title: Yup.string().required().max(66, 'Tag name is maximum 66 characters')
 					})
 				),
-			article_status: Yup.string().oneOf(['publish', 'pending', 'draft'], 'Status invalid'),
-			comment_status: Yup.string().oneOf(['open', 'closed'], 'Comments status invalid')
+			status: Yup.string().oneOf(['publish', 'pending', 'draft'], 'Status invalid')
 		}),
 		onSubmit: (values, { setSubmitting, setErrors }) => {
 			httpRequest
@@ -113,8 +111,7 @@ const CreateArticleComponent = () => {
 						content: values.content,
 						categories: JSON.stringify(values.categories),
 						tags: JSON.stringify(values.tags),
-						article_status: values.article_status,
-						comment_status: values.comment_status
+						status: values.status
 					},
 					files: {
 						image: values.image
@@ -134,6 +131,12 @@ const CreateArticleComponent = () => {
 				});
 		}
 	});
+
+	/* const onKeyDown = (keyEvent) => {
+		if (keyEvent.code === 'Enter' || keyEvent.code === 'NumpadEnter') {
+			keyEvent.preventDefault();
+		}
+	}; */
 
 	return (
 		<>
@@ -256,19 +259,19 @@ const CreateArticleComponent = () => {
 								<div className="invalid-feedback d-block">{formik.errors.content}</div>
 							)}
 						</div>
-						<div className="col-md-6">
-							<label htmlFor="article_status" className="form-label">
-								Article status <span className="text-danger">*</span>
+						{/* <div className="col-md-6">
+							<label htmlFor="status" className="form-label">
+								Status <span className="text-danger">*</span>
 							</label>
 							<select
 								className={classNames('form-select', {
-									'is-invalid': formik.errors.article_status && formik.touched.article_status
+									'is-invalid': formik.errors.status && formik.touched.status
 								})}
 								onChange={formik.handleChange}
 								onBlur={formik.handleBlur}
-								value={formik.values.article_status}
-								name="article_status"
-								id="article_status"
+								value={formik.values.status}
+								name="status"
+								id="status"
 							>
 								{[
 									{ value: 'publish', label: 'Published' },
@@ -280,40 +283,30 @@ const CreateArticleComponent = () => {
 									</option>
 								))}
 							</select>
-							{formik.errors.article_status && formik.touched.article_status && (
-								<div className="invalid-feedback">{formik.errors.article_status}</div>
-							)}
-						</div>
-						<div className="col-md-6">
-							<label htmlFor="comment_status" className="form-label">
-								Comments status <span className="text-danger">*</span>
-							</label>
-							<select
-								className={classNames('form-select', {
-									'is-invalid': formik.errors.comment_status && formik.touched.comment_status
-								})}
-								onChange={formik.handleChange}
-								onBlur={formik.handleBlur}
-								value={formik.values.comment_status}
-								name="comment_status"
-								id="comment_status"
-							>
-								{[
-									{ value: 'open', label: 'Open' },
-									{ value: 'closed', label: 'Closed' }
-								].map((status, index) => (
-									<option value={status.value} key={index}>
-										{status.label}
-									</option>
-								))}
-							</select>
-							{formik.errors.comment_status && formik.touched.comment_status && (
-								<div className="invalid-feedback">{formik.errors.comment_status}</div>
-							)}
-						</div>
+							{formik.errors.status && formik.touched.status && <div className="invalid-feedback">{formik.errors.status}</div>}
+						</div> */}
 						<div className="col-md-12">
-							<button className="btn btn-primary" type="submit" disabled={formik.isSubmitting}>
-								{formik.isSubmitting ? 'Submitting' : 'Submit'}
+							<button
+								className="btn btn-primary btn-sm me-2"
+								type="button"
+								onClick={() => {
+									formik.setFieldValue('status', 'publish', false);
+									formik.handleSubmit();
+								}}
+								disabled={formik.isSubmitting}
+							>
+								{formik.isSubmitting ? 'Publishing' : 'Publish'}
+							</button>
+							<button
+								className="btn btn-secondary btn-sm"
+								type="button"
+								onClick={() => {
+									formik.setFieldValue('status', 'draft', false);
+									formik.handleSubmit();
+								}}
+								disabled={formik.isSubmitting}
+							>
+								{formik.isSubmitting ? 'Saving to draft' : 'Save to draft'}
 							</button>
 						</div>
 					</form>

@@ -6,6 +6,7 @@ import TableLoading from 'common/components/TableLoading/components';
 import history from 'common/utils/history';
 import httpRequest from 'common/utils/httpRequest';
 import pageNumber from 'common/utils/pageNumber';
+import timeFormat from 'common/utils/timeFormat';
 import React, { useEffect, useState } from 'react';
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
@@ -125,7 +126,7 @@ const ListCategoryComponent = () => {
 									...prevState.pagination,
 									categories: {
 										...prevState.pagination.categories,
-										total: response.data.meta.total
+										total: response.data.pagination.total
 									}
 								}
 							}));
@@ -218,7 +219,7 @@ const ListCategoryComponent = () => {
 						...prevState.pagination,
 						categories: {
 							...prevState.pagination.categories,
-							total: response.data.meta.total
+							total: response.data.pagination.total
 						}
 					}
 				}));
@@ -246,10 +247,6 @@ const ListCategoryComponent = () => {
 
 	const sortByList = [
 		{
-			value: 'id',
-			label: 'Id'
-		},
-		{
 			value: 'title',
 			label: 'Title'
 		},
@@ -260,6 +257,14 @@ const ListCategoryComponent = () => {
 		{
 			value: 'total_articles',
 			label: 'Total articles'
+		},
+		{
+			value: 'created_at',
+			label: 'Created at'
+		},
+		{
+			value: 'updated_at',
+			label: 'Updated at'
 		}
 	];
 
@@ -281,67 +286,71 @@ const ListCategoryComponent = () => {
 			</div>
 			<div className="content-body">
 				<Card header="List categories">
-					{state.loadings.categories ? (
-						<TableLoading />
-					) : (
-						!!state.data.categories.length && (
-							<div className="position-relative">
-								<div className="d-flex justify-content-end flex-column flex-sm-row">
-									<div className="d-flex align-items-center mb-3 me-0 me-sm-3">
-										<label htmlFor="sort_by" className="form-label mb-0 me-2">
-											Sort by
-										</label>
-										<select
-											id="sort_by"
-											className="form-select form-select-sm w-auto"
-											value={state.filters.categories.sortBy}
-											onChange={(event) => onChangeSortBy(event)}
-										>
-											<option value="">Select</option>
-											{sortByList.map((sortBy, index) => (
-												<option value={sortBy.value} key={index}>
-													{sortBy.label}
-												</option>
-											))}
-										</select>
-									</div>
-									<div className="d-flex align-items-center mb-3">
-										<label htmlFor="sort_direction" className="form-label mb-0 me-2">
-											Sort direction
-										</label>
-										<select
-											id="sort_direction"
-											className="form-select form-select-sm w-auto"
-											value={state.filters.categories.sortDirection}
-											onChange={(event) => onChangeSortDirection(event)}
-										>
-											<option value="">Select</option>
-											{sortDirectionList.map((sortBy, index) => (
-												<option value={sortBy.value} key={index}>
-													{sortBy.label}
-												</option>
-											))}
-										</select>
-									</div>
-								</div>
+					<div className="position-relative">
+						<div className="d-flex flex-column flex-sm-row">
+							<div className="d-flex align-items-center mb-3 me-0 me-sm-3">
+								<label htmlFor="sort_by" className="form-label mb-0 me-2">
+									Sort by
+								</label>
+								<select
+									id="sort_by"
+									className="form-select form-select-sm w-auto"
+									value={state.filters.categories.sortBy}
+									onChange={(event) => onChangeSortBy(event)}
+								>
+									{sortByList.map((sortBy, index) => (
+										<option value={sortBy.value} key={index}>
+											{sortBy.label}
+										</option>
+									))}
+								</select>
+							</div>
+							<div className="d-flex align-items-center mb-3">
+								<label htmlFor="sort_direction" className="form-label mb-0 me-2">
+									Sort direction
+								</label>
+								<select
+									id="sort_direction"
+									className="form-select form-select-sm w-auto"
+									value={state.filters.categories.sortDirection}
+									onChange={(event) => onChangeSortDirection(event)}
+								>
+									{sortDirectionList.map((sortBy, index) => (
+										<option value={sortBy.value} key={index}>
+											{sortBy.label}
+										</option>
+									))}
+								</select>
+							</div>
+						</div>
+						{state.loadings.categories ? (
+							<TableLoading className="mb-3" />
+						) : (
+							!!state.data.categories.length && (
 								<div className="table-responsive-xxl mb-3">
-									<table className="table table-striped table-hover table-bordered mb-0" style={{ minWidth: 888 }}>
+									<table className="table table-sm  table-striped table-hover table-bordered mb-0" style={{ minWidth: 888 }}>
 										<thead>
 											<tr>
-												<th className="align-middle">Id</th>
 												<th className="align-middle">Title</th>
 												<th className="align-middle">Slug</th>
 												<th className="align-middle">Total articles</th>
-												<th className="align-middle"></th>
+												<th className="align-middle" style={{ width: '11%' }}>
+													Created at
+												</th>
+												<th className="align-middle" style={{ width: '11%' }}>
+													Updated at
+												</th>
+												<th className="align-middle" style={{ width: '11%' }}></th>
 											</tr>
 										</thead>
 										<tbody>
 											{state.data.categories.map((category, index) => (
 												<tr key={index}>
-													<td className="align-middle">{category.id}</td>
-													<td className="align-middle">{category.title}</td>
-													<td className="align-middle">{category.slug}</td>
-													<td className="align-middle">{category.total_articles}</td>
+													<td className="align-middle small">{category.title}</td>
+													<td className="align-middle small">{category.slug}</td>
+													<td className="align-middle small">{category.total_articles}</td>
+													<td className="align-middle small">{timeFormat(category.created_at)}</td>
+													<td className="align-middle small">{timeFormat(category.updated_at)}</td>
 													<td className="align-middle">
 														<div className="d-flex align-items-center justify-content-center">
 															<button
@@ -366,18 +375,18 @@ const ListCategoryComponent = () => {
 										</tbody>
 									</table>
 								</div>
-								<Pagination
-									limits={state.pagination.categories.limits}
-									total={state.pagination.categories.total}
-									limit={state.pagination.categories.limit}
-									currentPage={state.pagination.categories.page}
-									onChangePage={onChangePage}
-									onChangeLimit={onChangeLimit}
-								/>
-								<BlockUIComponent blocking={state.deletings.categories} />
-							</div>
-						)
-					)}
+							)
+						)}
+						<Pagination
+							limits={state.pagination.categories.limits}
+							total={state.pagination.categories.total}
+							limit={state.pagination.categories.limit}
+							currentPage={state.pagination.categories.page}
+							onChangePage={onChangePage}
+							onChangeLimit={onChangeLimit}
+						/>
+						<BlockUIComponent blocking={state.deletings.categories} />
+					</div>
 				</Card>
 			</div>
 		</>

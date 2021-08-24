@@ -7,8 +7,10 @@ import TableLoading from 'common/components/TableLoading/components';
 import history from 'common/utils/history';
 import httpRequest from 'common/utils/httpRequest';
 import pageNumber from 'common/utils/pageNumber';
+import timeFormat from 'common/utils/timeFormat';
 import React, { useEffect, useState } from 'react';
-import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
+import classNames from 'classnames';
+import { FaRegEdit, FaRegTrashAlt, FaTrashRestoreAlt } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 
 const ListArticleComponent = () => {
@@ -16,7 +18,12 @@ const ListArticleComponent = () => {
 
 	const [state, setState] = useState({
 		data: {
-			articles: []
+			articles: [],
+			totalAll: 0,
+			totalPublished: 0,
+			totalTrash: 0,
+			totalDraft: 0,
+			totalPending: 0
 		},
 		pagination: {
 			articles: {
@@ -29,7 +36,8 @@ const ListArticleComponent = () => {
 		filters: {
 			articles: {
 				sortBy: 'created_at',
-				sortDirection: 'desc'
+				sortDirection: 'desc',
+				status: 'all'
 			}
 		},
 		loadings: {
@@ -108,7 +116,8 @@ const ListArticleComponent = () => {
 								offset: (pageNumber(state.pagination.articles.page) - 1) * state.pagination.articles.limit,
 								limit: state.pagination.articles.limit,
 								sort_by: state.filters.articles.sortBy,
-								sort_direction: state.filters.articles.sortDirection
+								sort_direction: state.filters.articles.sortDirection,
+								status: state.filters.articles.status
 							}
 						})
 						.then((response) => {
@@ -120,13 +129,111 @@ const ListArticleComponent = () => {
 								...prevState,
 								data: {
 									...prevState.data,
-									articles: response.data.data
+									articles: response.data.data,
+									totalAll: response.data.total_all,
+									totalPublished: response.data.total_published,
+									totalTrash: response.data.total_trash,
+									totalDraft: response.data.total_draft,
+									totalPending: response.data.total_pending
 								},
 								pagination: {
 									...prevState.pagination,
 									articles: {
 										...prevState.pagination.articles,
-										total: response.data.meta.total
+										total: response.data.pagination.total
+									}
+								}
+							}));
+						})
+						.catch((error) => {
+							console.log(error);
+						})
+						.finally(() => {
+							setState((prevState) => ({
+								...prevState,
+								deletings: {
+									...prevState.deletings,
+									articles: false
+								}
+							}));
+						});
+				})
+				.catch((error) => {
+					console.log(error);
+				})
+				.finally(() => {});
+		}
+	};
+
+	const onUpdateStatusClicked = (event, article, value) => {
+		event.preventDefault();
+		if (window.confirm(value === 'untrash' ? 'Do you want to untrash?' : 'Do you want to move article to the trash?')) {
+			setState((prevState) => ({
+				...prevState,
+				deletings: {
+					...prevState.deletings,
+					articles: true
+				}
+			}));
+			new Promise((resolve, reject) => {
+				httpRequest
+					.put({
+						url: `/articles/status/${article.id}`,
+						token: auth.token.access_token,
+						data: {
+							status: value
+						}
+					})
+					.then((response) => {
+						if (!response.data.success) {
+							console.log('Error');
+							return reject(new Error('Error'));
+						}
+						return resolve(response);
+					})
+					.catch((error) => {
+						console.log(error);
+					})
+					.finally(() => {});
+			})
+				.then((result) => {
+					if (!result.data.success) {
+						console.log('Error');
+						return;
+					}
+					httpRequest
+						.get({
+							url: `/articles`,
+							token: auth.token.access_token,
+							params: {
+								offset: (pageNumber(state.pagination.articles.page) - 1) * state.pagination.articles.limit,
+								limit: state.pagination.articles.limit,
+								sort_by: state.filters.articles.sortBy,
+								sort_direction: state.filters.articles.sortDirection,
+								status: state.filters.articles.status
+							}
+						})
+						.then((response) => {
+							if (!response.data.success) {
+								console.log('Error');
+								return;
+							}
+							setState((prevState) => ({
+								...prevState,
+								data: {
+									...prevState.data,
+									articles: response.data.data,
+									totalAll: response.data.total_all,
+									totalPublished: response.data.total_published,
+									totalTrash: response.data.total_trash,
+									totalDraft: response.data.total_draft,
+									totalPending: response.data.total_pending
+								},
+								pagination: {
+									...prevState.pagination,
+									articles: {
+										...prevState.pagination.articles,
+										total: response.data.pagination.total
 									}
 								}
 							}));
@@ -185,6 +292,27 @@ const ListArticleComponent = () => {
 		}
 	};
 
+	const onChangeStatus = (event, value) => {
+		event.preventDefault();
+		setState((prevState) => ({
+			...prevState,
+			filters: {
+				...prevState.filters,
+				articles: {
+					...prevState.filters.articles,
+					status: value
+				}
+			},
+			pagination: {
+				...prevState.pagination,
+				articles: {
+					...prevState.pagination.articles,
+					page: 1
+				}
+			}
+		}));
+	};
+
 	useEffect(() => {
 		setState((prevState) => ({
 			...prevState,
@@ -201,7 +329,8 @@ const ListArticleComponent = () => {
 					offset: (pageNumber(state.pagination.articles.page) - 1) * state.pagination.articles.limit,
 					limit: state.pagination.articles.limit,
 					sort_by: state.filters.articles.sortBy,
-					sort_direction: state.filters.articles.sortDirection
+					sort_direction: state.filters.articles.sortDirection,
+					status: state.filters.articles.status
 				}
 			})
 			.then((response) => {
@@ -213,13 +342,18 @@ const ListArticleComponent = () => {
 					...prevState,
 					data: {
 						...prevState.data,
-						articles: response.data.data
+						articles: response.data.data,
+						totalAll: response.data.total_all,
+						totalPublished: response.data.total_published,
+						totalTrash: response.data.total_trash,
+						totalDraft: response.data.total_draft,
+						totalPending: response.data.total_pending
 					},
 					pagination: {
 						...prevState.pagination,
 						articles: {
 							...prevState.pagination.articles,
-							total: response.data.meta.total
+							total: response.data.pagination.total
 						}
 					}
 				}));
@@ -241,22 +375,15 @@ const ListArticleComponent = () => {
 		auth.token.access_token,
 		state.filters.articles.sortBy,
 		state.filters.articles.sortDirection,
+		state.filters.articles.status,
 		state.pagination.articles.limit,
 		state.pagination.articles.page
 	]);
 
 	const sortByList = [
 		{
-			value: 'id',
-			label: 'Id'
-		},
-		{
 			value: 'title',
 			label: 'Title'
-		},
-		{
-			value: 'slug',
-			label: 'Slug'
 		},
 		{
 			value: 'categories',
@@ -267,12 +394,12 @@ const ListArticleComponent = () => {
 			label: 'Tags'
 		},
 		{
-			value: 'article_status',
-			label: 'Article status'
+			value: 'created_at',
+			label: 'Created at'
 		},
 		{
-			value: 'comment_status',
-			label: 'Comment status'
+			value: 'updated_at',
+			label: 'Updated at'
 		}
 	];
 
@@ -294,76 +421,129 @@ const ListArticleComponent = () => {
 			</div>
 			<div className="content-body">
 				<Card header="List articles">
-					{state.loadings.articles ? (
-						<TableLoading />
-					) : (
-						!!state.data.articles.length && (
-							<div className="position-relative">
-								<div className="d-flex justify-content-end flex-column flex-sm-row">
-									<div className="d-flex align-items-center mb-3 me-0 me-sm-3">
-										<label htmlFor="sort_by" className="form-label mb-0 me-2">
-											Sort by
-										</label>
-										<select
-											id="sort_by"
-											className="form-select form-select-sm w-auto"
-											value={state.filters.articles.sortBy}
-											onChange={(event) => onChangeSortBy(event)}
-										>
-											<option value="">Select</option>
-											{sortByList.map((sortBy, index) => (
-												<option value={sortBy.value} key={index}>
-													{sortBy.label}
-												</option>
-											))}
-										</select>
-									</div>
-									<div className="d-flex align-items-center mb-3">
-										<label htmlFor="sort_direction" className="form-label mb-0 me-2">
-											Sort direction
-										</label>
-										<select
-											id="sort_direction"
-											className="form-select form-select-sm w-auto"
-											value={state.filters.articles.sortDirection}
-											onChange={(event) => onChangeSortDirection(event)}
-										>
-											<option value="">Select</option>
-											{sortDirectionList.map((sortBy, index) => (
-												<option value={sortBy.value} key={index}>
-													{sortBy.label}
-												</option>
-											))}
-										</select>
-									</div>
-								</div>
+					<div className="position-relative">
+						<div className="mb-3">
+							<button
+								type="button"
+								className={classNames('bg-transparent border-0 p-0', {
+									'text-primary': state.filters.articles.status === 'all'
+								})}
+								onClick={(event) => onChangeStatus(event, 'all')}
+							>
+								All ({state.data.totalAll})
+							</button>
+							<span className="mx-2">|</span>
+							<button
+								type="button"
+								className={classNames('bg-transparent border-0 p-0', {
+									'text-primary': state.filters.articles.status === 'publish'
+								})}
+								onClick={(event) => onChangeStatus(event, 'publish')}
+							>
+								Published ({state.data.totalPublished})
+							</button>
+							<span className="mx-2">|</span>
+							<button
+								type="button"
+								className={classNames('bg-transparent border-0 p-0', {
+									'text-primary': state.filters.articles.status === 'draft'
+								})}
+								onClick={(event) => onChangeStatus(event, 'draft')}
+							>
+								Draft ({state.data.totalDraft})
+							</button>
+							<span className="mx-2">|</span>
+							<button
+								type="button"
+								className={classNames('bg-transparent border-0 p-0', {
+									'text-primary': state.filters.articles.status === 'pending'
+								})}
+								onClick={(event) => onChangeStatus(event, 'pending')}
+							>
+								Pending ({state.data.totalPending})
+							</button>
+							<span className="mx-2">|</span>
+							<button
+								type="button"
+								className={classNames('bg-transparent border-0 p-0', {
+									'text-primary': state.filters.articles.status === 'trash'
+								})}
+								onClick={(event) => onChangeStatus(event, 'trash')}
+							>
+								Trash ({state.data.totalTrash})
+							</button>
+						</div>
+						<div className="d-flex flex-column flex-sm-row">
+							<div className="d-flex align-items-center mb-3 me-0 me-sm-3">
+								<label htmlFor="sort_by" className="form-label mb-0 me-2">
+									Sort by
+								</label>
+								<select
+									id="sort_by"
+									className="form-select form-select-sm w-auto"
+									value={state.filters.articles.sortBy}
+									onChange={(event) => onChangeSortBy(event)}
+								>
+									{sortByList.map((sortBy, index) => (
+										<option value={sortBy.value} key={index}>
+											{sortBy.label}
+										</option>
+									))}
+								</select>
+							</div>
+							<div className="d-flex align-items-center mb-3">
+								<label htmlFor="sort_direction" className="form-label mb-0 me-2">
+									Sort direction
+								</label>
+								<select
+									id="sort_direction"
+									className="form-select form-select-sm w-auto"
+									value={state.filters.articles.sortDirection}
+									onChange={(event) => onChangeSortDirection(event)}
+								>
+									{sortDirectionList.map((sortBy, index) => (
+										<option value={sortBy.value} key={index}>
+											{sortBy.label}
+										</option>
+									))}
+								</select>
+							</div>
+						</div>
+						{state.loadings.articles ? (
+							<TableLoading className="mb-3" />
+						) : (
+							!!state.data.articles.length && (
 								<div className="table-responsive-xxl mb-3">
-									<table className="table table-striped table-hover table-bordered mb-0" style={{ minWidth: 888 }}>
+									<table className="table table-sm table-striped table-hover table-bordered mb-0" style={{ minWidth: 888 }}>
 										<thead>
 											<tr>
-												<th className="align-middle">Id</th>
 												<th className="align-middle">Image</th>
 												<th className="align-middle">Title</th>
-												<th className="align-middle">Slug</th>
-												<th className="align-middle">Categories</th>
-												<th className="align-middle">Tags</th>
-												<th className="align-middle">Article status</th>
-												<th className="align-middle">Comment status</th>
-												<th className="align-middle"></th>
+												<th className="align-middle" style={{ width: '15%' }}>
+													Categories
+												</th>
+												<th className="align-middle" style={{ width: '15%' }}>
+													Tags
+												</th>
+												<th className="align-middle" style={{ width: '11%' }}>
+													Created at
+												</th>
+												<th className="align-middle" style={{ width: '11%' }}>
+													Updated at
+												</th>
+												<th className="align-middle" style={{ width: '11%' }}></th>
 											</tr>
 										</thead>
 										<tbody>
 											{state.data.articles.map((article, index) => (
 												<tr key={index}>
-													<td className="align-middle">{article.id}</td>
 													<td className="align-middle">
 														{article.image && (
-															<CustomImageComponent src={article.image} width={150} height={90} alt={article.title} />
+															<CustomImageComponent src={article.image} width={100} height={60} alt={article.title} />
 														)}
 													</td>
-													<td className="align-middle">{article.title}</td>
-													<td className="align-middle">{article.slug}</td>
-													<td className="align-middle">
+													<td className="align-middle small">{article.title}</td>
+													<td className="align-middle small">
 														{article?.categories?.map((category, index) => (
 															<button
 																type="button"
@@ -374,7 +554,7 @@ const ListArticleComponent = () => {
 															</button>
 														))}
 													</td>
-													<td className="align-middle">
+													<td className="align-middle small">
 														{article?.tags?.map((tag, index) => (
 															<button
 																type="button"
@@ -386,25 +566,47 @@ const ListArticleComponent = () => {
 															</button>
 														))}
 													</td>
-													<td className="align-middle">{article.article_status}</td>
-													<td className="align-middle">{article.comment_status}</td>
+													<td className="align-middle small">{timeFormat(article.created_at)}</td>
+													<td className="align-middle small">{timeFormat(article.updated_at)}</td>
 													<td className="align-middle">
 														<div className="d-flex align-items-center justify-content-center">
-															<button
-																type="button"
-																className="btn btn-secondary d-flex align-items-center me-2"
-																onClick={() => history.push(`/main/articles/edit/${article.id}`)}
-															>
-																<FaRegEdit />
-															</button>
-															<button
-																type="button"
-																className="btn btn-danger d-flex align-items-center"
-																onClick={(event) => onDeleteClicked(event, article)}
-																disabled={state.deletings.articles}
-															>
-																<FaRegTrashAlt />
-															</button>
+															{state.filters.articles.status === 'trash' ? (
+																<>
+																	<button
+																		type="button"
+																		className="btn btn-secondary d-flex align-items-center me-2"
+																		onClick={(event) => onUpdateStatusClicked(event, article, 'untrash')}
+																	>
+																		<FaTrashRestoreAlt />
+																	</button>
+																	<button
+																		type="button"
+																		className="btn btn-danger d-flex align-items-center"
+																		onClick={(event) => onDeleteClicked(event, article)}
+																		disabled={state.deletings.articles}
+																	>
+																		<FaRegTrashAlt />
+																	</button>
+																</>
+															) : (
+																<>
+																	<button
+																		type="button"
+																		className="btn btn-secondary d-flex align-items-center me-2"
+																		onClick={() => history.push(`/main/articles/edit/${article.id}`)}
+																	>
+																		<FaRegEdit />
+																	</button>
+																	<button
+																		type="button"
+																		className="btn btn-warning d-flex align-items-center"
+																		onClick={(event) => onUpdateStatusClicked(event, article, 'trash')}
+																		disabled={state.deletings.articles}
+																	>
+																		<FaRegTrashAlt />
+																	</button>
+																</>
+															)}
 														</div>
 													</td>
 												</tr>
@@ -412,18 +614,18 @@ const ListArticleComponent = () => {
 										</tbody>
 									</table>
 								</div>
-								<Pagination
-									limits={state.pagination.articles.limits}
-									total={state.pagination.articles.total}
-									limit={state.pagination.articles.limit}
-									currentPage={state.pagination.articles.page}
-									onChangePage={onChangePage}
-									onChangeLimit={onChangeLimit}
-								/>
-								<BlockUIComponent blocking={state.deletings.articles} />
-							</div>
-						)
-					)}
+							)
+						)}
+						<Pagination
+							limits={state.pagination.articles.limits}
+							total={state.pagination.articles.total}
+							limit={state.pagination.articles.limit}
+							currentPage={state.pagination.articles.page}
+							onChangePage={onChangePage}
+							onChangeLimit={onChangeLimit}
+						/>
+						<BlockUIComponent blocking={state.deletings.articles} />
+					</div>
 				</Card>
 			</div>
 		</>

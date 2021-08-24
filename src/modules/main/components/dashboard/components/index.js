@@ -1,12 +1,18 @@
 import Breadcrumb from 'common/components/Breadcrumb/components';
 import Card from 'common/components/Card/components';
+import moment from 'moment';
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 
 const rand = () => Math.floor(Math.random() * 255);
+const today = moment();
+const res = Array(7)
+	.fill()
+	.map(() => today.subtract(1, 'd').format('DD'));
+console.log(res);
 
 const data = {
-	labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+	labels: res,
 	datasets: [
 		{
 			type: 'line',
@@ -14,21 +20,15 @@ const data = {
 			borderColor: `rgb(${rand()}, ${rand()}, ${rand()})`,
 			borderWidth: 2,
 			fill: false,
-			data: [rand(), rand(), rand(), rand(), rand(), rand()]
+			data: [5, 7, 8, 9, 15, 50, 10]
 		},
 		{
 			type: 'bar',
 			label: 'Dataset 2',
 			backgroundColor: `rgb(${rand()}, ${rand()}, ${rand()})`,
-			data: [rand(), rand(), rand(), rand(), rand(), rand(), rand()],
+			data: [5, 7, 8, 9, 15, 50, 10],
 			borderColor: 'white',
 			borderWidth: 2
-		},
-		{
-			type: 'bar',
-			label: 'Dataset 3',
-			backgroundColor: `rgb(${rand()}, ${rand()}, ${rand()})`,
-			data: [rand(), rand(), rand(), rand(), rand(), rand(), rand()]
 		}
 	]
 };
