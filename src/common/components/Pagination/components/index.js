@@ -50,7 +50,7 @@ const Pagination = ({ limits, total, limit, currentPage, onChangePage, onChangeL
 					))}
 				</select>
 			</div>
-			<nav className="ms-md-auto mt-3 mt-md-0" aria-label="pagination">
+			<nav className="ms-md-auto mt-2 mt-sm-3 mt-md-0" aria-label="pagination">
 				<ul className="pagination pagination-sm mb-0">
 					{currentPage !== 1 ? (
 						<>
