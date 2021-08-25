@@ -1,6 +1,7 @@
 import BlockUIComponent from 'common/components/BlockUI/components';
 import Breadcrumb from 'common/components/Breadcrumb/components';
 import Card from 'common/components/Card/components';
+import FilterComponent from 'common/components/Filter/components';
 import Pagination from 'common/components/Pagination/components';
 import TableLoading from 'common/components/TableLoading/components';
 import history from 'common/utils/history';
@@ -13,6 +14,10 @@ import { useSelector } from 'react-redux';
 
 const ListCategoryComponent = () => {
 	const auth = useSelector((state) => state.appAuth.current);
+
+	const [formSearch, setFormSearch] = useState({
+		q: ''
+	});
 
 	const [state, setState] = useState({
 		data: {
@@ -29,7 +34,8 @@ const ListCategoryComponent = () => {
 		filters: {
 			categories: {
 				sortBy: 'created_at',
-				sortDirection: 'desc'
+				sortDirection: 'desc',
+				q: ''
 			}
 		},
 		loadings: {
@@ -108,7 +114,8 @@ const ListCategoryComponent = () => {
 								offset: (pageNumber(state.pagination.categories.page) - 1) * state.pagination.categories.limit,
 								limit: state.pagination.categories.limit,
 								sort_by: state.filters.categories.sortBy,
-								sort_direction: state.filters.categories.sortDirection
+								sort_direction: state.filters.categories.sortDirection,
+								q: state.filters.categories.q
 							}
 						})
 						.then((response) => {
@@ -151,9 +158,7 @@ const ListCategoryComponent = () => {
 		}
 	};
 
-	const onChangeSortBy = (event) => {
-		event.preventDefault();
-		const value = event.target.value;
+	const onChangeSortBy = (value) => {
 		if (value) {
 			setState((prevState) => ({
 				...prevState,
@@ -161,16 +166,14 @@ const ListCategoryComponent = () => {
 					...prevState.filters,
 					categories: {
 						...prevState.filters.categories,
-						sortBy: event.target.value
+						sortBy: value
 					}
 				}
 			}));
 		}
 	};
 
-	const onChangeSortDirection = (event) => {
-		event.preventDefault();
-		const value = event.target.value;
+	const onChangeSortDirection = (value) => {
 		if (value) {
 			setState((prevState) => ({
 				...prevState,
@@ -178,11 +181,56 @@ const ListCategoryComponent = () => {
 					...prevState.filters,
 					categories: {
 						...prevState.filters.categories,
-						sortDirection: event.target.value
+						sortDirection: value
 					}
 				}
 			}));
 		}
+	};
+
+	const handleChangeSearch = (value) => {
+		if (!value) {
+			setState((prevState) => ({
+				...prevState,
+				filters: {
+					...prevState.filters,
+					categories: {
+						...prevState.filters.categories,
+						q: ''
+					}
+				},
+				pagination: {
+					...prevState.pagination,
+					categories: {
+						...prevState.pagination.categories,
+						page: 1
+					}
+				}
+			}));
+		}
+		setFormSearch({
+			q: value
+		});
+	};
+
+	const handleSubmitSearch = () => {
+		setState((prevState) => ({
+			...prevState,
+			filters: {
+				...prevState.filters,
+				categories: {
+					...prevState.filters.categories,
+					q: formSearch.q
+				}
+			},
+			pagination: {
+				...prevState.pagination,
+				categories: {
+					...prevState.pagination.categories,
+					page: 1
+				}
+			}
+		}));
 	};
 
 	useEffect(() => {
@@ -201,7 +249,8 @@ const ListCategoryComponent = () => {
 					offset: (pageNumber(state.pagination.categories.page) - 1) * state.pagination.categories.limit,
 					limit: state.pagination.categories.limit,
 					sort_by: state.filters.categories.sortBy,
-					sort_direction: state.filters.categories.sortDirection
+					sort_direction: state.filters.categories.sortDirection,
+					q: state.filters.categories.q
 				}
 			})
 			.then((response) => {
@@ -239,45 +288,12 @@ const ListCategoryComponent = () => {
 		return () => {};
 	}, [
 		auth.token.access_token,
+		state.filters.categories.q,
 		state.filters.categories.sortBy,
 		state.filters.categories.sortDirection,
 		state.pagination.categories.limit,
 		state.pagination.categories.page
 	]);
-
-	const sortByList = [
-		{
-			value: 'title',
-			label: 'Title'
-		},
-		{
-			value: 'slug',
-			label: 'Slug'
-		},
-		{
-			value: 'total_articles',
-			label: 'Total articles'
-		},
-		{
-			value: 'created_at',
-			label: 'Created at'
-		},
-		{
-			value: 'updated_at',
-			label: 'Updated at'
-		}
-	];
-
-	const sortDirectionList = [
-		{
-			value: 'desc',
-			label: 'Desc'
-		},
-		{
-			value: 'asc',
-			label: 'Asc'
-		}
-	];
 
 	return (
 		<>
@@ -287,7 +303,48 @@ const ListCategoryComponent = () => {
 			<div className="content-body">
 				<Card header="List categories">
 					<div className="position-relative">
-						<div className="d-flex flex-column flex-sm-row">
+						<FilterComponent
+							sortBy={state.filters.categories.sortBy}
+							onChangeSortBy={onChangeSortBy}
+							sortByList={[
+								{
+									value: 'title',
+									label: 'Title'
+								},
+								{
+									value: 'slug',
+									label: 'Slug'
+								},
+								{
+									value: 'total_articles',
+									label: 'Total articles'
+								},
+								{
+									value: 'created_at',
+									label: 'Created at'
+								},
+								{
+									value: 'updated_at',
+									label: 'Updated at'
+								}
+							]}
+							sortDirection={state.filters.categories.sortDirection}
+							onChangeSortDirection={onChangeSortDirection}
+							sortDirectionList={[
+								{
+									value: 'desc',
+									label: 'Desc'
+								},
+								{
+									value: 'asc',
+									label: 'Asc'
+								}
+							]}
+							q={formSearch.q}
+							handleSubmitSearch={handleSubmitSearch}
+							handleChangeSearch={handleChangeSearch}
+						/>
+						{/* <div className="d-flex flex-column flex-sm-row">
 							<div className="d-flex align-items-center mb-3 me-0 me-sm-3">
 								<label htmlFor="sort_by" className="form-label mb-0 me-2">
 									Sort by
@@ -322,7 +379,7 @@ const ListCategoryComponent = () => {
 									))}
 								</select>
 							</div>
-						</div>
+						</div> */}
 						{state.loadings.categories ? (
 							<TableLoading className="mb-3" />
 						) : (
