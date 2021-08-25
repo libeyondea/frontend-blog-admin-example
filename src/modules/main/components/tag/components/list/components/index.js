@@ -1,6 +1,7 @@
 import BlockUIComponent from 'common/components/BlockUI/components';
 import Breadcrumb from 'common/components/Breadcrumb/components';
 import Card from 'common/components/Card/components';
+import FilterComponent from 'common/components/Filter/components';
 import Pagination from 'common/components/Pagination/components';
 import TableLoading from 'common/components/TableLoading/components';
 import history from 'common/utils/history';
@@ -13,6 +14,10 @@ import { useSelector } from 'react-redux';
 
 const ListTagComponent = () => {
 	const auth = useSelector((state) => state.appAuth.current);
+
+	const [formSearch, setFormSearch] = useState({
+		q: ''
+	});
 
 	const [state, setState] = useState({
 		data: {
@@ -108,7 +113,8 @@ const ListTagComponent = () => {
 								offset: (pageNumber(state.pagination.tags.page) - 1) * state.pagination.tags.limit,
 								limit: state.pagination.tags.limit,
 								sort_by: state.filters.tags.sortBy,
-								sort_direction: state.filters.tags.sortDirection
+								sort_direction: state.filters.tags.sortDirection,
+								q: state.filters.tags.q
 							}
 						})
 						.then((response) => {
@@ -151,9 +157,7 @@ const ListTagComponent = () => {
 		}
 	};
 
-	const onChangeSortBy = (event) => {
-		event.preventDefault();
-		const value = event.target.value;
+	const onChangeSortBy = (value) => {
 		if (value) {
 			setState((prevState) => ({
 				...prevState,
@@ -161,16 +165,14 @@ const ListTagComponent = () => {
 					...prevState.filters,
 					tags: {
 						...prevState.filters.tags,
-						sortBy: event.target.value
+						sortBy: value
 					}
 				}
 			}));
 		}
 	};
 
-	const onChangeSortDirection = (event) => {
-		event.preventDefault();
-		const value = event.target.value;
+	const onChangeSortDirection = (value) => {
 		if (value) {
 			setState((prevState) => ({
 				...prevState,
@@ -178,11 +180,56 @@ const ListTagComponent = () => {
 					...prevState.filters,
 					tags: {
 						...prevState.filters.tags,
-						sortDirection: event.target.value
+						sortDirection: value
 					}
 				}
 			}));
 		}
+	};
+
+	const handleChangeSearch = (value) => {
+		if (!value) {
+			setState((prevState) => ({
+				...prevState,
+				filters: {
+					...prevState.filters,
+					tags: {
+						...prevState.filters.tags,
+						q: ''
+					}
+				},
+				pagination: {
+					...prevState.pagination,
+					tags: {
+						...prevState.pagination.tags,
+						page: 1
+					}
+				}
+			}));
+		}
+		setFormSearch({
+			q: value
+		});
+	};
+
+	const handleSubmitSearch = () => {
+		setState((prevState) => ({
+			...prevState,
+			filters: {
+				...prevState.filters,
+				tags: {
+					...prevState.filters.tags,
+					q: formSearch.q
+				}
+			},
+			pagination: {
+				...prevState.pagination,
+				tags: {
+					...prevState.pagination.tags,
+					page: 1
+				}
+			}
+		}));
 	};
 
 	useEffect(() => {
@@ -201,7 +248,8 @@ const ListTagComponent = () => {
 					offset: (pageNumber(state.pagination.tags.page) - 1) * state.pagination.tags.limit,
 					limit: state.pagination.tags.limit,
 					sort_by: state.filters.tags.sortBy,
-					sort_direction: state.filters.tags.sortDirection
+					sort_direction: state.filters.tags.sortDirection,
+					q: state.filters.tags.q
 				}
 			})
 			.then((response) => {
@@ -239,45 +287,12 @@ const ListTagComponent = () => {
 		return () => {};
 	}, [
 		auth.token.access_token,
+		state.filters.tags.q,
 		state.filters.tags.sortBy,
 		state.filters.tags.sortDirection,
 		state.pagination.tags.limit,
 		state.pagination.tags.page
 	]);
-
-	const sortByList = [
-		{
-			value: 'title',
-			label: 'Title'
-		},
-		{
-			value: 'slug',
-			label: 'Slug'
-		},
-		{
-			value: 'total_articles',
-			label: 'Total articles'
-		},
-		{
-			value: 'created_at',
-			label: 'Created at'
-		},
-		{
-			value: 'updated_at',
-			label: 'Updated at'
-		}
-	];
-
-	const sortDirectionList = [
-		{
-			value: 'desc',
-			label: 'Desc'
-		},
-		{
-			value: 'asc',
-			label: 'Asc'
-		}
-	];
 
 	return (
 		<>
@@ -287,42 +302,47 @@ const ListTagComponent = () => {
 			<div className="content-body">
 				<Card header="List tags">
 					<div className="position-relative">
-						<div className="d-flex flex-column flex-sm-row">
-							<div className="d-flex align-items-center mb-3 me-0 me-sm-3">
-								<label htmlFor="sort_by" className="form-label mb-0 me-2">
-									Sort by
-								</label>
-								<select
-									id="sort_by"
-									className="form-select form-select-sm w-auto"
-									value={state.filters.tags.sortBy}
-									onChange={(event) => onChangeSortBy(event)}
-								>
-									{sortByList.map((sortBy, index) => (
-										<option value={sortBy.value} key={index}>
-											{sortBy.label}
-										</option>
-									))}
-								</select>
-							</div>
-							<div className="d-flex align-items-center mb-3">
-								<label htmlFor="sort_direction" className="form-label mb-0 me-2">
-									Sort direction
-								</label>
-								<select
-									id="sort_direction"
-									className="form-select form-select-sm w-auto"
-									value={state.filters.tags.sortDirection}
-									onChange={(event) => onChangeSortDirection(event)}
-								>
-									{sortDirectionList.map((sortBy, index) => (
-										<option value={sortBy.value} key={index}>
-											{sortBy.label}
-										</option>
-									))}
-								</select>
-							</div>
-						</div>
+						<FilterComponent
+							sortBy={state.filters.tags.sortBy}
+							onChangeSortBy={onChangeSortBy}
+							sortByList={[
+								{
+									value: 'title',
+									label: 'Title'
+								},
+								{
+									value: 'slug',
+									label: 'Slug'
+								},
+								{
+									value: 'total_articles',
+									label: 'Total articles'
+								},
+								{
+									value: 'created_at',
+									label: 'Created at'
+								},
+								{
+									value: 'updated_at',
+									label: 'Updated at'
+								}
+							]}
+							sortDirection={state.filters.tags.sortDirection}
+							onChangeSortDirection={onChangeSortDirection}
+							sortDirectionList={[
+								{
+									value: 'desc',
+									label: 'Desc'
+								},
+								{
+									value: 'asc',
+									label: 'Asc'
+								}
+							]}
+							q={formSearch.q}
+							handleSubmitSearch={handleSubmitSearch}
+							handleChangeSearch={handleChangeSearch}
+						/>
 						{state.loadings.tags ? (
 							<TableLoading className="mb-3" />
 						) : (
