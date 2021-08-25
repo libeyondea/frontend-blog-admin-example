@@ -12,9 +12,14 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { FaRegEdit, FaRegTrashAlt, FaTrashRestoreAlt } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
+import FilterComponent from 'common/components/Filter/components';
 
 const ListArticleComponent = () => {
 	const auth = useSelector((state) => state.appAuth.current);
+
+	const [formSearch, setFormSearch] = useState({
+		q: ''
+	});
 
 	const [state, setState] = useState({
 		data: {
@@ -37,7 +42,8 @@ const ListArticleComponent = () => {
 			articles: {
 				sortBy: 'created_at',
 				sortDirection: 'desc',
-				status: 'all'
+				status: 'all',
+				q: ''
 			}
 		},
 		loadings: {
@@ -117,7 +123,8 @@ const ListArticleComponent = () => {
 								limit: state.pagination.articles.limit,
 								sort_by: state.filters.articles.sortBy,
 								sort_direction: state.filters.articles.sortDirection,
-								status: state.filters.articles.status
+								status: state.filters.articles.status,
+								q: state.filters.articles.q
 							}
 						})
 						.then((response) => {
@@ -210,7 +217,8 @@ const ListArticleComponent = () => {
 								limit: state.pagination.articles.limit,
 								sort_by: state.filters.articles.sortBy,
 								sort_direction: state.filters.articles.sortDirection,
-								status: state.filters.articles.status
+								status: state.filters.articles.status,
+								q: state.filters.articles.q
 							}
 						})
 						.then((response) => {
@@ -258,40 +266,6 @@ const ListArticleComponent = () => {
 		}
 	};
 
-	const onChangeSortBy = (event) => {
-		event.preventDefault();
-		const value = event.target.value;
-		if (value) {
-			setState((prevState) => ({
-				...prevState,
-				filters: {
-					...prevState.filters,
-					articles: {
-						...prevState.filters.articles,
-						sortBy: event.target.value
-					}
-				}
-			}));
-		}
-	};
-
-	const onChangeSortDirection = (event) => {
-		event.preventDefault();
-		const value = event.target.value;
-		if (value) {
-			setState((prevState) => ({
-				...prevState,
-				filters: {
-					...prevState.filters,
-					articles: {
-						...prevState.filters.articles,
-						sortDirection: event.target.value
-					}
-				}
-			}));
-		}
-	};
-
 	const onChangeStatus = (event, value) => {
 		event.preventDefault();
 		setState((prevState) => ({
@@ -301,6 +275,82 @@ const ListArticleComponent = () => {
 				articles: {
 					...prevState.filters.articles,
 					status: value
+				}
+			},
+			pagination: {
+				...prevState.pagination,
+				articles: {
+					...prevState.pagination.articles,
+					page: 1
+				}
+			}
+		}));
+	};
+
+	// Filters
+	const onChangeSortBy = (value) => {
+		if (value) {
+			setState((prevState) => ({
+				...prevState,
+				filters: {
+					...prevState.filters,
+					articles: {
+						...prevState.filters.articles,
+						sortBy: value
+					}
+				}
+			}));
+		}
+	};
+
+	const onChangeSortDirection = (value) => {
+		if (value) {
+			setState((prevState) => ({
+				...prevState,
+				filters: {
+					...prevState.filters,
+					articles: {
+						...prevState.filters.articles,
+						sortDirection: value
+					}
+				}
+			}));
+		}
+	};
+
+	const handleChangeSearch = (value) => {
+		if (!value) {
+			setState((prevState) => ({
+				...prevState,
+				filters: {
+					...prevState.filters,
+					articles: {
+						...prevState.filters.articles,
+						q: ''
+					}
+				},
+				pagination: {
+					...prevState.pagination,
+					articles: {
+						...prevState.pagination.articles,
+						page: 1
+					}
+				}
+			}));
+		}
+		setFormSearch({
+			q: value
+		});
+	};
+
+	const handleSubmitSearch = () => {
+		setState((prevState) => ({
+			...prevState,
+			filters: {
+				...prevState.filters,
+				articles: {
+					...prevState.filters.articles,
+					q: formSearch.q
 				}
 			},
 			pagination: {
@@ -330,7 +380,8 @@ const ListArticleComponent = () => {
 					limit: state.pagination.articles.limit,
 					sort_by: state.filters.articles.sortBy,
 					sort_direction: state.filters.articles.sortDirection,
-					status: state.filters.articles.status
+					status: state.filters.articles.status,
+					q: state.filters.articles.q
 				}
 			})
 			.then((response) => {
@@ -373,46 +424,13 @@ const ListArticleComponent = () => {
 		return () => {};
 	}, [
 		auth.token.access_token,
+		state.filters.articles.q,
 		state.filters.articles.sortBy,
 		state.filters.articles.sortDirection,
 		state.filters.articles.status,
 		state.pagination.articles.limit,
 		state.pagination.articles.page
 	]);
-
-	const sortByList = [
-		{
-			value: 'title',
-			label: 'Title'
-		},
-		{
-			value: 'categories',
-			label: 'Categories'
-		},
-		{
-			value: 'tags',
-			label: 'Tags'
-		},
-		{
-			value: 'created_at',
-			label: 'Created at'
-		},
-		{
-			value: 'updated_at',
-			label: 'Updated at'
-		}
-	];
-
-	const sortDirectionList = [
-		{
-			value: 'desc',
-			label: 'Desc'
-		},
-		{
-			value: 'asc',
-			label: 'Asc'
-		}
-	];
 
 	return (
 		<>
@@ -422,7 +440,7 @@ const ListArticleComponent = () => {
 			<div className="content-body">
 				<Card header="List articles">
 					<div className="position-relative">
-						<div className="mb-3">
+						<div className="mb-2 mb-sm-3">
 							<button
 								type="button"
 								className={classNames('bg-transparent border-0 p-0', {
@@ -473,51 +491,112 @@ const ListArticleComponent = () => {
 								Trash ({state.data.totalTrash})
 							</button>
 						</div>
-						<div className="d-flex flex-column flex-sm-row">
-							<div className="d-flex align-items-center mb-3 me-0 me-sm-3">
-								<label htmlFor="sort_by" className="form-label mb-0 me-2">
-									Sort by
-								</label>
-								<select
-									id="sort_by"
-									className="form-select form-select-sm w-auto"
-									value={state.filters.articles.sortBy}
-									onChange={(event) => onChangeSortBy(event)}
-								>
-									{sortByList.map((sortBy, index) => (
-										<option value={sortBy.value} key={index}>
-											{sortBy.label}
-										</option>
-									))}
-								</select>
+						{/* <div className="d-flex flex-column flex-md-row">
+							<div className="d-flex flex-column flex-sm-row">
+								<div className="d-flex align-items-center mb-2 mb-sm-3 me-0 me-sm-3">
+									<label htmlFor="sort_by" className="form-label mb-0 me-2">
+										Sort by
+									</label>
+									<select
+										id="sort_by"
+										className="form-select form-select-sm w-auto"
+										value={state.filters.articles.sortBy}
+										onChange={(event) => onChangeSortBy(event)}
+									>
+										{sortByList.map((sortBy, index) => (
+											<option value={sortBy.value} key={index}>
+												{sortBy.label}
+											</option>
+										))}
+									</select>
+								</div>
+								<div className="d-flex align-items-center mb-2 mb-sm-3">
+									<label htmlFor="sort_direction" className="form-label mb-0 me-2">
+										Sort direction
+									</label>
+									<select
+										id="sort_direction"
+										className="form-select form-select-sm w-auto"
+										value={state.filters.articles.sortDirection}
+										onChange={(event) => onChangeSortDirection(event)}
+									>
+										{sortDirectionList.map((sortBy, index) => (
+											<option value={sortBy.value} key={index}>
+												{sortBy.label}
+											</option>
+										))}
+									</select>
+								</div>
 							</div>
-							<div className="d-flex align-items-center mb-3">
-								<label htmlFor="sort_direction" className="form-label mb-0 me-2">
-									Sort direction
-								</label>
-								<select
-									id="sort_direction"
-									className="form-select form-select-sm w-auto"
-									value={state.filters.articles.sortDirection}
-									onChange={(event) => onChangeSortDirection(event)}
-								>
-									{sortDirectionList.map((sortBy, index) => (
-										<option value={sortBy.value} key={index}>
-											{sortBy.label}
-										</option>
-									))}
-								</select>
+							<div className="d-flex align-items-center ms-auto mb-2 mb-sm-3">
+								<form onSubmit={handleSubmitSearch} className="d-flex align-items-center">
+									<input
+										type="text"
+										placeholder="Enter keyword"
+										className={classNames('form-control form-control-sm me-2')}
+										onChange={handleChangeSearch}
+										value={formSearch.q}
+										name="search"
+										id="search"
+									/>
+									<button type="submit" className="btn btn-outline-secondary btn-sm">
+										Search
+									</button>
+								</form>
 							</div>
-						</div>
+						</div> */}
+						<FilterComponent
+							sortBy={state.filters.articles.sortBy}
+							onChangeSortBy={onChangeSortBy}
+							sortByList={[
+								{
+									value: 'title',
+									label: 'Title'
+								},
+								{
+									value: 'categories',
+									label: 'Categories'
+								},
+								{
+									value: 'tags',
+									label: 'Tags'
+								},
+								{
+									value: 'created_at',
+									label: 'Created at'
+								},
+								{
+									value: 'updated_at',
+									label: 'Updated at'
+								}
+							]}
+							sortDirection={state.filters.articles.sortDirection}
+							onChangeSortDirection={onChangeSortDirection}
+							sortDirectionList={[
+								{
+									value: 'desc',
+									label: 'Desc'
+								},
+								{
+									value: 'asc',
+									label: 'Asc'
+								}
+							]}
+							q={formSearch.q}
+							handleSubmitSearch={handleSubmitSearch}
+							handleChangeSearch={handleChangeSearch}
+						/>
 						{state.loadings.articles ? (
-							<TableLoading className="mb-3" />
+							<TableLoading className="mb-2 mb-sm-3" />
 						) : (
 							!!state.data.articles.length && (
-								<div className="table-responsive-xxl mb-3">
+								<div className="table-responsive-xxl mb-2 mb-sm-3">
 									<table className="table table-sm table-striped table-hover table-bordered mb-0" style={{ minWidth: 888 }}>
 										<thead>
 											<tr>
-												<th className="align-middle">Image</th>
+												<th className="align-middle" style={{ width: '109px' }}>
+													Image
+												</th>
 												<th className="align-middle">Title</th>
 												<th className="align-middle" style={{ width: '15%' }}>
 													Categories
